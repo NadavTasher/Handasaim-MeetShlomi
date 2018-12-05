@@ -10,13 +10,13 @@ https://github.com/NadavTasher/MeetShlomi/
     <meta name="theme-color" content="#FFFFFF"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-    <meta name="apple-mobile-web-app-title" content="AppName"/>
+    <meta name="apple-mobile-web-app-title" content="MeetShlomi"/>
     <link rel="apple-touch-icon" href="icons/icon_apple.png"/>
     <link rel="icon" href="icons/icon.png"/>
     <link rel="stylesheet" href="css/app.css"/>
     <script type="text/javascript" src="javascript/app.js"></script>
     <script type="text/javascript" src="javascript/utils.js"></script>
-    <title>AppName</title>
+    <title>MeetShlomi</title>
 </head>
 <body onload="load()">
 <div>
@@ -34,11 +34,13 @@ https://github.com/NadavTasher/MeetShlomi/
     <div id="new">
         <p>Schedule A New Meeting</p>
         <p>I am a <select id="new-type">
-            <option>Student</option>
-            <option>Parent</option>
-            <option>Teacher</option>
+            <option value="student">Student</option>
+            <option value="parent">Parent</option>
+            <option value="teacher">Teacher</option>
         </select>
         </p>
+        <p>and i would like to schedule a meeting with Shlomi</p>
+        <p>on <input type="date" id="new-date" step="1" min="2018-12-12" value="2018-12-12" dataformatas="dd/MM/yyyy"/></p>
     </div>
     <div id="about">
         <p>MeetShlomi by Nadav Tasher</p>
