@@ -1,0 +1,57 @@
+html {
+    overflow-x: hidden;
+}
+
+body {
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+body div {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+
+html,
+body {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+div,
+form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+p,
+input,
+select,
+option,
+button {
+    font-family: Arial, ArialHebrew, sans-serif;
+    font-size: x-large;
+    text-align: center;
+    color: #FFF;
+    margin: 1vh;
+    padding: 1vh;
+}
+
+input,
+select,
+option,
+button {
+    background-color: #333;
+    border-radius: 1vh;
+    border-color: transparent;
+}
+
+p {
+    color: #000;
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!--
+Created By NadavTasher
+https://github.com/NadavTasher/MeetShlomi/
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, minimal-ui"/>
+    <meta name="theme-color" content="#FFFFFF"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="apple-mobile-web-app-title" content="AppName"/>
+    <link rel="apple-touch-icon" href="icons/icon_apple.png"/>
+    <link rel="icon" href="icons/icon.png"/>
+    <link rel="stylesheet" href="css/app.css"/>
+    <script type="text/javascript" src="javascript/app.js"></script>
+    <script type="text/javascript" src="javascript/utils.js"></script>
+    <title>AppName</title>
+</head>
+<body onload="load()">
+<div>
+    <div id="home">
+        <p>Welcome, <p id="userName">User</p></p>
+        <div id="newUser">
+            <input id="input-new-name" placeholder="Your Name"/>
+            <button id="createUser" onclick="createUser();">Save Name</button>
+        </div>
+        <div id="userQueue">
+            <p id="queueTitle">My Meetings</p>
+            <div id="queue"></div>
+        </div>
+    </div>
+    <div id="new">
+        <p>Schedule A New Meeting</p>
+        <p>I am a <select id="new-type">
+            <option>Student</option>
+            <option>Parent</option>
+            <option>Teacher</option>
+        </select>
+        </p>
+    </div>
+    <div id="about">
+        <p>MeetShlomi by Nadav Tasher</p>
+        <p><i>Inspired by יא2</i></p>
+    </div>
+</div>
+</body>
+</html>
