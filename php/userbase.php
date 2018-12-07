@@ -1,5 +1,5 @@
 <?php
-$result = new ArrayObject();
+$result=new stdClass();
 $settings = json_decode(file_get_contents('../files/prefs.json'));
 $userbaseFile = '../files/userbase.json';
 $userbase = json_decode(file_get_contents($userbaseFile));
@@ -29,7 +29,7 @@ function createUser()
         }
         $seed = rand(10000000, 99000000);
 
-        $user = new ArrayObject();
+        $user = new stdClass();
         $user->id = $id;
         $user->seed = $seed;
         $user->name = $userinfo->name;
