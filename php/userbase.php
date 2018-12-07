@@ -1,7 +1,8 @@
 <?php
 $result = new ArrayObject();
 $settings = json_decode(file_get_contents('../files/prefs.json'));
-$userbase = json_decode(file_get_contents('../files/userbase.json'));
+$userbaseFile = '../files/userbase.json';
+$userbase = json_decode(file_get_contents($userbaseFile));
 if (isset($_POST["id"])) {
     $id = $_POST["id"];
     if (isRegistered($id)) {
@@ -10,34 +11,53 @@ if (isset($_POST["id"])) {
         createUser();
     }
 } else {
-    echo "{\"error\":\"Unknown\"}";
+    $result->error="Unknown";
 }
 echo json_encode($result);
 
 function createUser()
 {
-    global $userbase, $result;
-    $id = null;
-    while ($id === null) {
-        $random = rand(0, 10000);
-        if (!isset($userbase->$random)) {
-            $id = $random;
+    global $userbase, $userbaseFile, $result;
+    if (isset($_POST["userinfo"])) {
+        $userinfo = json_decode($_POST["userinfo"]);
+        $id = null;
+        while ($id === null) {
+            $random = rand(1, 10000);
+            if (!isset($userbase->$random)) {
+                $id = $random;
+            }
         }
-    }
-    $seed=rand(10000000,99000000);
-    $result->id = $id;
-    $result->seed = $seed;
+        $seed = rand(10000000, 99000000);
 
+        $user = new ArrayObject();
+        $user->id = $id;
+        $user->seed = $seed;
+        $user->name = $userinfo->name;
+        $user->type = $userinfo->type;
+        $user->status = "standard";
+        $user->meetings = [];
+
+        // Write To Results
+        $result->id = $id;
+        $result->seed = $seed;
+        // Write To Userbase
+        $userarray = $userbase->users;
+        array_push($userarray, $user);
+        $userbase->users = $userarray;
+        // Write Userbase
+        file_put_contents($userbaseFile, json_encode($userbase));
+    }
 }
 
 function isRegistered($id)
 {
     global $userbase;
-    if ($id !== 0) {
-        return isset($userbase->$id);
-    } else {
-        return false;
+    $users = $userbase->users;
+    for ($i = 0; $i < sizeof($users); $i++) {
+        if ($users[$i]->id === $id) return true;
     }
+    return false;
+
 }
 
 function register()
