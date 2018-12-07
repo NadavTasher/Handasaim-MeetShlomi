@@ -1,26 +1,38 @@
 <?php
-$result=new stdClass();
+$result = new stdClass();
 $settings = json_decode(file_get_contents('../files/prefs.json'));
 $userbaseFile = '../files/userbase.json';
 $userbase = json_decode(file_get_contents($userbaseFile));
 if (isset($_POST["id"])) {
     $id = $_POST["id"];
     if (isRegistered($id)) {
-        if(isset($_POST["modify"])){
+        if (isset($_POST["modify"])) {
 
-        }else{
-            loadUser($id);
+        } else {
+            echo "here";
+            $result->userinfo = loadUser($id);
         }
     } else {
         createUser();
     }
 } else {
-    $result->error="Unknown";
+    $result->error = "Unknown";
 }
 echo json_encode($result);
 
-function loadUser($id){
-
+function loadUser($id)
+{
+    global $userbase;
+    $userarray = $userbase->users;
+    $userinfo = new stdClass();
+    for ($i = 0; $i < sizeof($userarray); $i++) {
+        $currentUser = $userarray[$i];
+        if ($currentUser->id === $id) {
+            $userinfo->name = $currentUser->name;
+            $userinfo->meetings = $currentUser->meetings;
+        }
+    }
+    return $userinfo;
 }
 
 function createUser()
@@ -31,6 +43,7 @@ function createUser()
         $id = null;
         while ($id === null) {
             $random = rand(1, 10000);
+            // todo fix this!!!!
             if (!isset($userbase->$random)) {
                 $id = $random;
             }

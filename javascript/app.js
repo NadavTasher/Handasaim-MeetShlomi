@@ -10,6 +10,7 @@ function home() {
         hide("newUser");
         loadUser(getCookie("userId"), (userinfo) => {
             show("homeView");
+            echo(userinfo);
         });
     } else {
         show("newUser");
@@ -29,6 +30,7 @@ function loadUser(userId, callback) {
         body: body
     }).then(response => {
         response.text().then((response) => {
+            echo(response);
             callback(JSON.parse(response));
         });
     });

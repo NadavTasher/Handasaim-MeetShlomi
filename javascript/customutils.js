@@ -22,6 +22,10 @@ function getCookie(cname) {
     return undefined;
 }
 
+function echo(v) {
+    console.log(v);
+}
+
 function refresh() {
     document.location.reload(true);
 }
