@@ -68,11 +68,13 @@ function createUser() {
 
 function dateChanged(){
     let day,month,year;
+    echo("date changed!");
 }
 
 function newMeeting() {
     hideAll();
     show("new");
+    makeDays();
 }
 
 function createMeeting() {

@@ -11,8 +11,8 @@ https://github.com/NadavTasher/MeetShlomi/
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
     <meta name="apple-mobile-web-app-title" content="MeetShlomi"/>
-    <link rel="apple-touch-icon" href="icons/icon_apple.png"/>
-    <link rel="icon" href="icons/icon.png"/>
+    <link rel="apple-touch-icon" href="images/icon_apple.png"/>
+    <link rel="icon" href="images/icon.png"/>
     <link rel="stylesheet" href="css/app.css"/>
     <script type="text/javascript" src="javascript/app.js"></script>
     <script type="text/javascript" src="javascript/utils.js"></script>
@@ -57,8 +57,8 @@ https://github.com/NadavTasher/MeetShlomi/
                 <option value="4">April</option>
                 <option value="5">May</option>
                 <option value="6">June</option>
-            </select><select id="new-day">
-        </select><select id="new-year">
+            </select><select id="new-day" onchange="dateChanged()">
+        </select><select id="new-year" onchange="dateChanged()">
             <option value="2018">2018</option>
             <option value="2019">2019</option>
             <option value="2020">2020</option>
