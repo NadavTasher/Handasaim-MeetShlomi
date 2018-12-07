@@ -33,6 +33,7 @@ function createUser()
         $user->id = $id;
         $user->seed = $seed;
         $user->name = $userinfo->name;
+        $user->phone = $userinfo->phone;
         $user->type = $userinfo->type;
         $user->status = "standard";
         $user->meetings = [];
