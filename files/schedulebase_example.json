@@ -1,0 +1,21 @@
+{
+  "index": [
+    "1920"
+  ],
+  "meetings": {
+    "1920": {
+      "slot":{
+        "slot": 20,
+        "date": {
+          "day": 1,
+          "month": 1,
+          "year": 2019
+        }
+      },
+      "state": "approved/pending/denied",
+      "content":{
+        "reason":"Reason For Meeting"
+      }
+    }
+  }
+}

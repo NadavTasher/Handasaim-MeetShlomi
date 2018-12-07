@@ -7,7 +7,7 @@ https://github.com/NadavTasher/MeetShlomi/
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, minimal-ui"/>
-    <meta name="theme-color" content="#FFFFFF"/>
+    <meta name="theme-color" content="#f9bd81"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
     <meta name="apple-mobile-web-app-title" content="MeetShlomi"/>
@@ -46,23 +46,19 @@ https://github.com/NadavTasher/MeetShlomi/
         <p>I would like to schedule a meeting with Shlomi</p>
         <p>on</p>
         <div id="new-date">
-            <select id="new-month" onchange="dateChanged()">
-                <option value="9">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
-                <option value="1">January</option>
-                <option value="2">February</option>
-                <option value="3">March</option>
-                <option value="4">April</option>
-                <option value="5">May</option>
-                <option value="6">June</option>
-            </select><select id="new-day" onchange="dateChanged()">
-        </select><select id="new-year" onchange="dateChanged()">
-            <option value="2018">2018</option>
-            <option value="2019">2019</option>
-            <option value="2020">2020</option>
-        </select>
+            <select id="new-day" onchange="dayChanged()">
+            </select><select id="new-month" onchange="monthChanged()">
+                <option value="8">Sep</option>
+                <option value="9">Oct</option>
+                <option value="10">Nov</option>
+                <option value="11">Dec</option>
+                <option value="0">Jan</option>
+                <option value="1">Feb</option>
+                <option value="2">Mar</option>
+                <option value="3">Apr</option>
+                <option value="4">May</option>
+                <option value="5">Jun</option>
+            </select>
         </div>
         <p>at</p>
         <select id="new-time">
