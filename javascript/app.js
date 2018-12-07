@@ -38,7 +38,6 @@ function createUser() {
     if (get("user-name").value.length > 0 && get("user-phone").value.length > 0) {
         if (get("user-phone").checkValidity()) {
             let userinfo = {type: get("user-type").value, name: get("user-name").value, phone: get("user-phone").value};
-            console.log(userinfo);
             let body = new FormData;
             body.append("id", "0");
             body.append("userinfo", JSON.stringify(userinfo));
@@ -51,7 +50,10 @@ function createUser() {
                 body: body
             }).then(response => {
                 response.text().then((response) => {
-                    console.log(response);
+                    let parsed=JSON.parse(response);
+                    setCookie("userId",parsed.id);
+                    setCookie("userSeed",parsed.seed);
+                    refresh();
                 });
             });
         } else {
@@ -60,6 +62,19 @@ function createUser() {
     } else {
         alert("Phone and Name must be filled.");
     }
+}
+
+function dateChanged(){
+    let day,month,year;
+}
+
+function newMeeting() {
+    hideAll();
+    show("new");
+}
+
+function createMeeting() {
+
 }
 
 function hideAll() {

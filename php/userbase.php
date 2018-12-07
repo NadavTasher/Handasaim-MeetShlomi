@@ -6,7 +6,11 @@ $userbase = json_decode(file_get_contents($userbaseFile));
 if (isset($_POST["id"])) {
     $id = $_POST["id"];
     if (isRegistered($id)) {
+        if(isset($_POST["modify"])){
 
+        }else{
+            loadUser($id);
+        }
     } else {
         createUser();
     }
@@ -14,6 +18,10 @@ if (isset($_POST["id"])) {
     $result->error="Unknown";
 }
 echo json_encode($result);
+
+function loadUser($id){
+
+}
 
 function createUser()
 {

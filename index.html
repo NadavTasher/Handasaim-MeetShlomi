@@ -24,7 +24,7 @@ https://github.com/NadavTasher/MeetShlomi/
     <div id="home">
         <div id="newUser">
             <p>Welcome</p>
-            <input id="user-name" placeholder="Your Name"/>
+            <input id="user-name" placeholder="Your Name" spellcheck="false"/>
             <input id="user-phone" type="tel" pattern="0[0-9]{9}" placeholder="Phone Number"/>
             <p>I'm a <select id="user-type">
                 <option value="student">Student</option>
@@ -37,6 +37,7 @@ https://github.com/NadavTasher/MeetShlomi/
             <div id="userQueue">
                 <p id="queueTitle">My Meetings</p>
                 <div id="queue"></div>
+                <button onclick="newMeeting()">+</button>
             </div>
         </div>
     </div>
@@ -67,7 +68,7 @@ https://github.com/NadavTasher/MeetShlomi/
         <select id="new-time">
 
         </select>
-        <button onclick="newMeeting()">Meet Shlomi!</button>
+        <button onclick="createMeeting()">Meet Shlomi!</button>
     </div>
     <div id="about">
         <p>MeetShlomi by Nadav Tasher</p>

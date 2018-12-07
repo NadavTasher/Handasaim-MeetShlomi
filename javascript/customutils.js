@@ -21,3 +21,7 @@ function getCookie(cname) {
     }
     return undefined;
 }
+
+function refresh() {
+    document.location.reload(true);
+}
