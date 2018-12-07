@@ -1,4 +1,4 @@
-const year=2018;
+const year = 2018;
 
 function load() {
     hideAll();
@@ -53,9 +53,9 @@ function createUser() {
                 body: body
             }).then(response => {
                 response.text().then((response) => {
-                    let parsed=JSON.parse(response);
-                    setCookie("userId",parsed.id);
-                    setCookie("userSeed",parsed.seed);
+                    let parsed = JSON.parse(response);
+                    setCookie("userId", parsed.id);
+                    setCookie("userSeed", parsed.seed);
                     refresh();
                 });
             });
@@ -67,33 +67,40 @@ function createUser() {
     }
 }
 
-function monthChanged(){
-    let day=get("new-day"),month=get("new-month");
-    let dayValue=day.value;
-    addDays(month.value);
-    day.value=dayValue;
+function monthChanged() {
+    let day = get("new-day"), month = get("new-month");
+    let dayValue = day.value;
+    addDays(parseInt(month.value,10));
+    day.value = dayValue;
 }
 
 function dayChanged() {
-    let date={day:get("new-day").value,month:parseInt(get("new-month").value,10),year:getYear(parseInt(get("new-month").value,10))};
-    loadOpenSlots(date,(base)=>{
-        let day=get("new-day");
-        clear(day);
-        let slot=base.slot;
-        let slots=base.slots;
-        for(let s=0;s<slots.length;s++){
-            let slotMinutes=slots[s]*slot;
-            let minutes=slotMinutes%60;
-            let hours=(slotMinutes-minutes)/60;
-            let option=document.createElement("option");
-            option.value=slots[s];
-            option.innerHTML=hours+":"+(minutes<10?"0":"")+minutes;
-            day.appendChild(option);
+    loadOpenSlots(getDate(), (base) => {
+        let time = get("new-time");
+        clear(time);
+        let slot = base.slot;
+        let slots = base.slots;
+        for (let s = 0; s < slots.length; s++) {
+            let slotMinutes = slots[s] * slot;
+            let minutes = slotMinutes % 60;
+            let hours = (slotMinutes - minutes) / 60;
+            let option = document.createElement("option");
+            option.value = slots[s];
+            option.innerHTML = hours + ":" + (minutes < 10 ? "0" : "") + minutes;
+            time.appendChild(option);
         }
     });
 }
 
-function loadOpenSlots(date,callback){
+function getDate() {
+    return {
+        day: parseInt(get("new-day").value, 10),
+        month: parseInt(get("new-month").value, 10) + 1,
+        year: getYear(parseInt(get("new-month").value, 10))
+    };
+}
+
+function loadOpenSlots(date, callback) {
     let body = new FormData;
     body.append("date", JSON.stringify(date));
     fetch("php/schedulebase.php", {
@@ -110,30 +117,30 @@ function loadOpenSlots(date,callback){
     });
 }
 
-function addDays(month){
-    let day=get("new-day");
+function addDays(month) {
+    let day = get("new-day");
     clear(day);
-    for(let d=1;d<=31;d++){
-        let currentDate=new Date();
+    for (let d = 1; d <= 31; d++) {
+        let currentDate = new Date();
         currentDate.setFullYear(getYear(month));
         currentDate.setMonth(month);
         currentDate.setDate(d);
-        if(currentDate.getDay()<5&&currentDate.getMonth()===parseInt(month,10)){
-            let dayName=getDayName(currentDate.getDay());
-            let newDay=document.createElement("option");
-            newDay.value=d;
-            newDay.innerHTML=dayName+" "+d;
+        if (currentDate.getDay() < 5 && currentDate.getMonth() === month) {
+            let dayName = getDayName(currentDate.getDay());
+            let newDay = document.createElement("option");
+            newDay.value = d;
+            newDay.innerHTML = dayName + " " + d;
             day.appendChild(newDay);
         }
     }
 }
 
 function getYear(month) {
-    return (month<8)?year+1:year;
+    return (month < 8) ? year + 1 : year;
 }
 
 function getDayName(day) {
-    switch (day){
+    switch (day) {
         case 0:
             return "Sun";
         case 1:

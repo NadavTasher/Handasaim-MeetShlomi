@@ -11,6 +11,7 @@ if (isset($_POST["date"])) {
         $result->slots = loadBase($date);
     }
 }
+echo json_encode($result);
 function loadBase($date)
 {
     global $schedulebase, $settings;
