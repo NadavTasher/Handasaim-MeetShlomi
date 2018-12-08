@@ -89,6 +89,6 @@ p {
     color: #FFF;
 }
 
-input[type="text"]{
+input:not([type]){
     direction: rtl;
 }
