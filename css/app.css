@@ -81,6 +81,7 @@ p {
 
 .meeting > div {
     flex-direction: row;
+    align-items: center;
     max-height: 8vh;
     padding: 1vh;
 }

@@ -71,6 +71,7 @@ button {
     flex-direction: row;
     max-height: 7vh;
     padding: 1vh;
+    align-items: center;
 }
 
 .meeting > div > div > img {
