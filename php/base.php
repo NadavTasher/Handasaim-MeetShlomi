@@ -12,23 +12,23 @@ function main()
     global $result;
     if (isset($_POST["id"])) {
         // User Actions
-        $id = $_POST["id"];
+        $id = intval($_POST["id"], 10);
         if (isRegistered($id)) {
             if (isset($_POST["data"])) {
-                $data = $_POST["data"];
+                $data = json_decode($_POST["data"]);
                 $result->meeting = createMeeting($id, $data);
             } else {
                 $result->user = loadUser($id);
             }
         } else {
             if (isset($_POST["data"])) {
-                $data = $_POST["data"];
+                $data = json_decode($_POST["data"]);
                 $result->user = createUser($data);
             }
         }
     } else if (isset($_POST["date"])) {
-        $date=$_POST["date"];
-        $result->slots=loadSlots($date);
+        $date = json_decode($_POST["date"]);
+        $result->slots = loadSlots($date);
     } else {
         $result->error = "Unknown Action";
     }
@@ -93,26 +93,30 @@ function meetingsForDate($date)
     $result = array();
     $meetings = $db->meetings;
     for ($m = 0; $m < sizeof($meetings); $m++) {
-        $currentMeetings = $meetings[$m];
-        if ($currentMeetings->date->day === $date->day && $currentMeetings->date->month === $date->month && $currentMeetings->date->year === $date->year) {
-            array_push($result, $currentMeetings);
+        $currentMeeting = $meetings[$m];
+        $currentDate = $currentMeeting->slot->date;
+        if ($currentDate->day === $date->day &&
+            $currentDate->month === $date->month &&
+            $currentDate->year === $date->year) {
+            array_push($result, $currentMeeting);
         }
     }
-    return $meetings;
+    return $result;
 }
 
-function loadSlots($date){
+function loadSlots($date)
+{
     global $settings;
-    $result=new stdClass();
-    $result->slot=$settings->slot;
-    $occupiedSlots=meetingsForDate($date);
-    $emptySlots=array();
-    for($s=$settings->start;$s<$settings->end;$s++){
-        if(!isOccupied($s,$occupiedSlots)){
-            array_push($emptySlots,$s);
+    $result = new stdClass();
+    $result->slot = $settings->slot;
+    $occupiedSlots = meetingsForDate($date);
+    $emptySlots = array();
+    for ($s = $settings->start; $s < $settings->end; $s++) {
+        if (!isOccupied($s, $occupiedSlots)) {
+            array_push($emptySlots, $s);
         }
     }
-    $result->slots=$emptySlots;
+    $result->slots = $emptySlots;
     return $result;
 }
 
@@ -160,8 +164,8 @@ function createUser($data)
 
 function isRegistered($id)
 {
-    global $userbase;
-    $users = $userbase->users;
+    global $db;
+    $users = $db->users;
     for ($i = 0; $i < sizeof($users); $i++) {
         if ($users[$i]->id === $id) return true;
     }
@@ -172,13 +176,15 @@ function isRegistered($id)
 function generateMeetingId()
 {
     global $db;
-    $meetings = $db->meeting;
+    $meetings = $db->meetings;
     $id = null;
     while ($id === null) {
         $random = rand(1, 100000);
-        for ($i = 0; $i < sizeof($meetings) && $id === null; $i++) {
-            if ($meetings[$i]->id !== $id) $id = $random;
+        $found = false;
+        for ($i = 0; $i < sizeof($meetings) && $found = false; $i++) {
+            if ($meetings[$i]->id === $id) $found = true;
         }
+        if (!$found) $id = $random;
     }
     return $id;
 }
@@ -190,9 +196,11 @@ function generateUserId()
     $id = null;
     while ($id === null) {
         $random = rand(1, 10000);
-        for ($i = 0; $i < sizeof($users) && $id === null; $i++) {
-            if ($users[$i]->id !== $id) $id = $random;
+        $found = false;
+        for ($i = 0; $i < sizeof($users) && $found = false; $i++) {
+            if ($users[$i]->id === $id) $found = true;
         }
+        if (!$found) $id = $random;
     }
     return $id;
 }

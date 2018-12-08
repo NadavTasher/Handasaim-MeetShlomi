@@ -8,7 +8,7 @@ function load() {
 function home() {
     hideAll();
     show("home");
-    if (getCookie("userId") !== undefined) {
+    if (getCookie("userId") !== undefined && getCookie("userId") !== "undefined") {
         hide("newUser");
         loadUser(getCookie("userId"), (userinfo) => {
             show("homeView");
@@ -53,7 +53,7 @@ function createUser() {
                 body: body
             }).then(response => {
                 response.text().then((response) => {
-                    let parsed = JSON.parse(response);
+                    let parsed = JSON.parse(response).user;
                     setCookie("userId", parsed.id);
                     setCookie("userSeed", parsed.seed);
                     refresh();
@@ -70,8 +70,8 @@ function createUser() {
 function monthChanged() {
     let day = get("new-day"), month = get("new-month");
     let dayValue = day.value;
-    addDays(parseInt(month.value,10));
-    day.value = dayValue;
+    addDays(parseInt(month.value, 10));
+    dayChanged();
 }
 
 function dayChanged() {
@@ -167,22 +167,36 @@ function newMeeting() {
 }
 
 function createMeeting() {
-    let body = new FormData;
-    body.append("id", getCookie("userId"));
-    body.append("seed", getCookie("userSeed"));
-    body.append("data", JSON.stringify({}));
-    fetch("php/base.php", {
-        method: "POST",
-        cache: "no-store",
-        headers: {
-            'Cache-Control': 'no-cache'
-        },
-        body: body
-    }).then(response => {
-        response.text().then((response) => {
-            callback(JSON.parse(response));
+    let reason = get("new-reason").value;
+    if (reason.length > 0) {
+        let data = {
+            content: {
+                reason: reason
+            },
+            slot: {
+                slot: parseInt(get("new-time").value, 10),
+                date: getDate()
+            }
+        };
+        let body = new FormData;
+        body.append("id", getCookie("userId"));
+        body.append("seed", getCookie("userSeed"));
+        body.append("data", JSON.stringify(data));
+        fetch("php/base.php", {
+            method: "POST",
+            cache: "no-store",
+            headers: {
+                'Cache-Control': 'no-cache'
+            },
+            body: body
+        }).then(response => {
+            response.text().then((response) => {
+                echo(response);
+            });
         });
-    });
+    } else {
+        alert("Reason must be filled");
+    }
 }
 
 function hideAll() {
