@@ -1,5 +1,11 @@
 const year = 2018;
 
+function hideAll() {
+    hide("home");
+    hide("new");
+    hide("about");
+}
+
 function load() {
     hideAll();
     home();
@@ -8,11 +14,31 @@ function load() {
 function home() {
     hideAll();
     show("home");
-    if (getCookie("userId") !== undefined && getCookie("userId") !== "undefined") {
+    if (getCookie("UserID") !== undefined && getCookie("UserID") !== "undefined") {
         hide("newUser");
-        loadUser(getCookie("userId"), (userinfo) => {
+        loadUser(getCookie("UserID"), (userinfo) => {
             show("homeView");
-            echo(userinfo);
+            let queue=get("queue");
+            clear(queue);
+            let meetings=userinfo.user.meetings;
+            for(let m=0;m<meetings.length;m++){
+                let currentMeeting=meetings[m];
+                let meeting=document.createElement("div");
+                let bottom=document.createElement("div");
+                let title=document.createElement("p");
+                let date=document.createElement("p");
+                let time=document.createElement("p");
+                let state=document.createElement("img");
+                meeting.classList.add("meeting");
+                title.innerHTML=currentMeeting.content.reason;
+
+                meeting.appendChild(title);
+                bottom.appendChild(date);
+                bottom.appendChild(time);
+                bottom.appendChild(state);
+                meeting.appendChild(bottom);
+                queue.appendChild(meeting);
+            }
         });
     } else {
         show("newUser");
@@ -20,9 +46,16 @@ function home() {
     }
 }
 
-function loadUser(userId, callback) {
+function meeting() {
+    hideAll();
+    show("new");
+    loadMonths();
+    monthChanged();
+}
+
+function loadUser(UserID, callback) {
     let body = new FormData;
-    body.append("id", userId);
+    body.append("id", UserID);
     fetch("php/base.php", {
         method: "POST",
         cache: "no-store",
@@ -35,6 +68,61 @@ function loadUser(userId, callback) {
             callback(JSON.parse(response));
         });
     });
+}
+
+function loadOpenSlots(date, callback) {
+    let body = new FormData;
+    body.append("date", JSON.stringify(date));
+    fetch("php/base.php", {
+        method: "POST",
+        cache: "no-store",
+        headers: {
+            'Cache-Control': 'no-cache'
+        },
+        body: body
+    }).then(response => {
+        response.text().then((response) => {
+            callback(JSON.parse(response).slots);
+        });
+    });
+}
+
+function createMeeting() {
+    let reason = get("new-reason").value;
+    if (reason.length > 0) {
+        let data = {
+            content: {
+                reason: reason
+            },
+            slot: {
+                slot: parseInt(get("new-time").value, 10),
+                date: getDate()
+            }
+        };
+        let body = new FormData;
+        body.append("id", getCookie("UserID"));
+        body.append("seed", getCookie("UserSeed"));
+        body.append("data", JSON.stringify(data));
+        fetch("php/base.php", {
+            method: "POST",
+            cache: "no-store",
+            headers: {
+                'Cache-Control': 'no-cache'
+            },
+            body: body
+        }).then(response => {
+            response.text().then((response) => {
+                let parsed = JSON.parse(response);
+                if (parsed.meeting.created) {
+                    refresh();
+                } else {
+                    alert("Could not create meeting...");
+                }
+            });
+        });
+    } else {
+        alert("Reason must be filled");
+    }
 }
 
 function createUser() {
@@ -54,8 +142,8 @@ function createUser() {
             }).then(response => {
                 response.text().then((response) => {
                     let parsed = JSON.parse(response).user;
-                    setCookie("userId", parsed.id);
-                    setCookie("userSeed", parsed.seed);
+                    setCookie("UserID", parsed.id);
+                    setCookie("UserSeed", parsed.seed);
                     refresh();
                 });
             });
@@ -70,7 +158,7 @@ function createUser() {
 function monthChanged() {
     let day = get("new-day"), month = get("new-month");
     let dayValue = day.value;
-    addDays(parseInt(month.value, 10));
+    loadDays(parseInt(month.value, 10));
     dayChanged();
 }
 
@@ -92,6 +180,108 @@ function dayChanged() {
     });
 }
 
+function loadDays(month) {
+    let days = get("new-day");
+    clear(days);
+
+    function getDayName(day) {
+        switch (day) {
+            case 0:
+                return "Sun";
+            case 1:
+                return "Mon";
+            case 2:
+                return "Tue";
+            case 3:
+                return "Wed";
+            case 4:
+                return "Thu";
+            case 5:
+                return "Fri";
+            case 6:
+                return "Sat";
+            default:
+                return "???";
+        }
+    }
+
+    function addDay(month, day) {
+        let currentDate = new Date();
+        currentDate.setFullYear(getYear(month));
+        currentDate.setMonth(month);
+        currentDate.setDate(day);
+        if (currentDate.getDay() < 5 && currentDate.getMonth() === month && new Date(Date.now()) <= currentDate) {
+            let dayName = getDayName(currentDate.getDay());
+            let newDay = document.createElement("option");
+            newDay.value = day;
+            newDay.innerHTML = dayName + " " + day;
+            days.appendChild(newDay);
+        }
+    }
+
+    for (let d = 1; d < 32; d++) {
+        addDay(month, d);
+    }
+}
+
+function loadMonths() {
+    let months = get("new-month");
+    clear(months);
+
+    function getMonthName(month) {
+        switch (month) {
+            case 0:
+                return "Jan";
+            case 1:
+                return "Feb";
+            case 2:
+                return "Mar";
+            case 3:
+                return "Apr";
+            case 4:
+                return "May";
+            case 5:
+                return "Jun";
+            case 6:
+                return "Jul";
+            case 7:
+                return "Aug";
+            case 8:
+                return "Sep";
+            case 9:
+                return "Oct";
+            case 10:
+                return "Nov";
+            case 11:
+                return "Dec";
+            default:
+                return "???";
+        }
+    }
+
+    function addMonth(month) {
+        let year = getYear(month);
+        let date = new Date();
+        date.setFullYear(year);
+        date.setMonth(month);
+        date.setDate(1);
+        let today = new Date(Date.now());
+        if (today < date || date.getMonth() === today.getMonth()) {
+            let option = document.createElement("option");
+            option.value = month;
+            option.innerHTML = getMonthName(month);
+            months.appendChild(option);
+        }
+    }
+
+    for (let i = 8; i < 12; i++) {
+        addMonth(i);
+    }
+    for (let i = 0; i < 6; i++) {
+        addMonth(i);
+    }
+}
+
 function getDate() {
     return {
         day: parseInt(get("new-day").value, 10),
@@ -100,107 +290,10 @@ function getDate() {
     };
 }
 
-function loadOpenSlots(date, callback) {
-    let body = new FormData;
-    body.append("date", JSON.stringify(date));
-    fetch("php/base.php", {
-        method: "POST",
-        cache: "no-store",
-        headers: {
-            'Cache-Control': 'no-cache'
-        },
-        body: body
-    }).then(response => {
-        response.text().then((response) => {
-            callback(JSON.parse(response).slots);
-        });
-    });
-}
-
-function addDays(month) {
-    let day = get("new-day");
-    clear(day);
-    for (let d = 1; d <= 31; d++) {
-        let currentDate = new Date();
-        currentDate.setFullYear(getYear(month));
-        currentDate.setMonth(month);
-        currentDate.setDate(d);
-        if (currentDate.getDay() < 5 && currentDate.getMonth() === month) {
-            let dayName = getDayName(currentDate.getDay());
-            let newDay = document.createElement("option");
-            newDay.value = d;
-            newDay.innerHTML = dayName + " " + d;
-            day.appendChild(newDay);
-        }
-    }
-}
-
 function getYear(month) {
     return (month < 8) ? year + 1 : year;
 }
 
-function getDayName(day) {
-    switch (day) {
-        case 0:
-            return "Sun";
-        case 1:
-            return "Mon";
-        case 2:
-            return "Tue";
-        case 3:
-            return "Wed";
-        case 4:
-            return "Thu";
-        case 5:
-            return "Fri";
-        case 6:
-            return "Sat";
-        default:
-            return "???";
-    }
-}
 
-function newMeeting() {
-    hideAll();
-    show("new");
-    monthChanged();
-}
 
-function createMeeting() {
-    let reason = get("new-reason").value;
-    if (reason.length > 0) {
-        let data = {
-            content: {
-                reason: reason
-            },
-            slot: {
-                slot: parseInt(get("new-time").value, 10),
-                date: getDate()
-            }
-        };
-        let body = new FormData;
-        body.append("id", getCookie("userId"));
-        body.append("seed", getCookie("userSeed"));
-        body.append("data", JSON.stringify(data));
-        fetch("php/base.php", {
-            method: "POST",
-            cache: "no-store",
-            headers: {
-                'Cache-Control': 'no-cache'
-            },
-            body: body
-        }).then(response => {
-            response.text().then((response) => {
-                echo(response);
-            });
-        });
-    } else {
-        alert("Reason must be filled");
-    }
-}
 
-function hideAll() {
-    hide("home");
-    hide("new");
-    hide("about");
-}

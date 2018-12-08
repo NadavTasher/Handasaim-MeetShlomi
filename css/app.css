@@ -61,3 +61,24 @@ p {
 #new-date{
     flex-direction: row;
 }
+
+.meeting{
+    background-color: #333;
+    border-radius: 1vh;
+    border-color: transparent;
+    font-family: Arial, ArialHebrew, sans-serif;
+    font-size: x-large;
+    text-align: center;
+    color: #FFF;
+    margin: 1vh;
+    padding: 1vh;
+}
+
+
+.meeting>div{
+    flex-direction: row;
+}
+
+.meeting p{
+    color: #FFF;
+}

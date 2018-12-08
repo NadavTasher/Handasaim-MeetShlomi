@@ -130,7 +130,14 @@ function loadUser($id)
         if ($currentUser->id === $id) {
             $user->name = $currentUser->name;
             $user->phone = $currentUser->phone;
-            $user->meetings = $currentUser->meetings;
+            // Only Load Indexes
+            // $user->meetings = $currentUser->meetings;
+            // Load Full Meetings
+            $meetings = array();
+            for ($m = 0; $m < sizeof($currentUser->meetings); $m++) {
+                array_push($meetings, loadMeeting($currentUser->meetings[$m]));
+            }
+            $user->meetings = $meetings;
         }
     }
     return $user;
@@ -160,6 +167,17 @@ function createUser($data)
     // Write Userbase
     save();
     return $result;
+}
+
+function loadMeeting($id)
+{
+    global $db;
+    $meetings = $db->meetings;
+    $meeting = null;
+    for ($i = 0; $i < sizeof($meetings) && $meeting === null; $i++) {
+        if ($meetings[$i]->id === $id) $meeting = $meetings[$i];
+    }
+    return $meeting;
 }
 
 function isRegistered($id)

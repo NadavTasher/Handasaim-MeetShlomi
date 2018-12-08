@@ -34,10 +34,10 @@ https://github.com/NadavTasher/MeetShlomi/
             <button id="createUser" onclick="createUser();">Create</button>
         </div>
         <div id="homeView">
-            <div id="userQueue">
-                <p id="queueTitle">My Meetings</p>
+            <div>
+                <p>My Meetings</p>
                 <div id="queue"></div>
-                <button onclick="newMeeting()">+</button>
+                <button onclick="meeting()">+</button>
             </div>
         </div>
     </div>
@@ -47,18 +47,9 @@ https://github.com/NadavTasher/MeetShlomi/
         <p>on</p>
         <div id="new-date">
             <select id="new-day" onchange="dayChanged()">
-            </select><select id="new-month" onchange="monthChanged()">
-            <option value="8">Sep</option>
-            <option value="9">Oct</option>
-            <option value="10">Nov</option>
-            <option value="11">Dec</option>
-            <option value="0">Jan</option>
-            <option value="1">Feb</option>
-            <option value="2">Mar</option>
-            <option value="3">Apr</option>
-            <option value="4">May</option>
-            <option value="5">Jun</option>
-        </select>
+            </select>
+            <select id="new-month" onchange="monthChanged()">
+            </select>
         </div>
         <p>at</p>
         <select id="new-time">
