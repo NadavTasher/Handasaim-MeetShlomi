@@ -8,7 +8,7 @@ body {
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-    background-color: #f9bd81;
+    background-color: #6facca;
 }
 
 body > div {
@@ -77,6 +77,12 @@ p {
 
 .meeting>div{
     flex-direction: row;
+    max-height: 8vh;
+    padding: 1vh;
+}
+
+.meeting>div>img{
+    max-height: inherit;
 }
 
 .meeting p{

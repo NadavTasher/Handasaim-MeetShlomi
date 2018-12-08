@@ -122,7 +122,7 @@ function loadSlots($date)
 
 function loadUser($id)
 {
-    global $db;
+    global $db, $settings;
     $users = $db->users;
     $user = new stdClass();
     for ($i = 0; $i < sizeof($users); $i++) {
@@ -133,6 +133,7 @@ function loadUser($id)
             // Only Load Indexes
             // $user->meetings = $currentUser->meetings;
             // Load Full Meetings
+            $user->slot = $settings->slot;
             $meetings = array();
             for ($m = 0; $m < sizeof($currentUser->meetings); $m++) {
                 array_push($meetings, loadMeeting($currentUser->meetings[$m]));

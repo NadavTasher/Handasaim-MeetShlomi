@@ -18,20 +18,32 @@ function home() {
         hide("newUser");
         loadUser(getCookie("UserID"), (userinfo) => {
             show("homeView");
-            let queue=get("queue");
+            echo(userinfo);
+            let queue = get("queue");
             clear(queue);
-            let meetings=userinfo.user.meetings;
-            for(let m=0;m<meetings.length;m++){
-                let currentMeeting=meetings[m];
-                let meeting=document.createElement("div");
-                let bottom=document.createElement("div");
-                let title=document.createElement("p");
-                let date=document.createElement("p");
-                let time=document.createElement("p");
-                let state=document.createElement("img");
+            let meetings = userinfo.user.meetings;
+            for (let m = 0; m < meetings.length; m++) {
+                let currentMeeting = meetings[m];
+                let meeting = document.createElement("div");
+                let bottom = document.createElement("div");
+                let title = document.createElement("p");
+                let date = document.createElement("p");
+                let time = document.createElement("p");
+                let state = document.createElement("img");
                 meeting.classList.add("meeting");
-                title.innerHTML=currentMeeting.content.reason;
-
+                title.innerHTML = currentMeeting.content.reason;
+                date.innerHTML = (currentMeeting.slot.date.day) + "." + (currentMeeting.slot.date.month);
+                let dayMinutes = currentMeeting.slot.slot * userinfo.user.slot;
+                let minutes = dayMinutes % 60;
+                let hours = (dayMinutes - minutes) / 60;
+                time.innerHTML = hours + ":" + (minutes < 10 ? "0" : "") + minutes;
+                if(currentMeeting.state==="pending"){
+                    state.src="images/pending.svg";
+                }else if(currentMeeting.state==="approved"){
+                    state.src="images/approved.svg";
+                }else{
+                    state.src="images/denied.svg";
+                }
                 meeting.appendChild(title);
                 bottom.appendChild(date);
                 bottom.appendChild(time);
