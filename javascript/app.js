@@ -23,7 +23,7 @@ function home() {
 function loadUser(userId, callback) {
     let body = new FormData;
     body.append("id", userId);
-    fetch("php/userbase.php", {
+    fetch("php/base.php", {
         method: "POST",
         cache: "no-store",
         headers: {
@@ -40,11 +40,11 @@ function loadUser(userId, callback) {
 function createUser() {
     if (get("user-name").value.length > 0 && get("user-phone").value.length > 0) {
         if (get("user-phone").checkValidity()) {
-            let userinfo = {type: get("user-type").value, name: get("user-name").value, phone: get("user-phone").value};
+            let data = {type: get("user-type").value, name: get("user-name").value, phone: get("user-phone").value};
             let body = new FormData;
             body.append("id", "0");
-            body.append("userinfo", JSON.stringify(userinfo));
-            fetch("php/userbase.php", {
+            body.append("data", JSON.stringify(data));
+            fetch("php/base.php", {
                 method: "POST",
                 cache: "no-store",
                 headers: {
@@ -103,7 +103,7 @@ function getDate() {
 function loadOpenSlots(date, callback) {
     let body = new FormData;
     body.append("date", JSON.stringify(date));
-    fetch("php/schedulebase.php", {
+    fetch("php/base.php", {
         method: "POST",
         cache: "no-store",
         headers: {
