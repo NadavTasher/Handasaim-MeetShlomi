@@ -95,6 +95,7 @@ p {
 
 #queue {
     overflow-y: scroll;
+    justify-content: start;
 }
 
 input:not([type]), .meeting > p {

@@ -8,6 +8,7 @@ body {
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
+    background-color: #433ac7;
 }
 
 body > div {
@@ -51,4 +52,45 @@ button {
     background-color: #333;
     border-radius: 1vh;
     border-color: transparent;
+}
+
+.meeting {
+    background-color: #333;
+    border-radius: 1vh;
+    border-color: transparent;
+    font-family: Arial, ArialHebrew, sans-serif;
+    font-size: x-large;
+    text-align: center;
+    color: #FFF;
+    margin: 1vh;
+    padding: 0;
+    min-height: 24vh;
+}
+
+.meeting > div {
+    flex-direction: row;
+    max-height: 8vh;
+    padding: 1vh;
+}
+
+.meeting > div > div > img {
+    max-height: inherit;
+    padding: 1vh;
+}
+
+.meeting > div > div {
+    background-color: #FFF;
+    border-radius: 1vh;
+    border-color: transparent;
+    max-height: inherit;
+    flex-direction: row;
+}
+
+.meeting p {
+    color: #FFF;
+}
+
+#pending, #calendar {
+    overflow-y: scroll;
+    justify-content: start;
 }
