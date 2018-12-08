@@ -60,6 +60,7 @@ function createMeeting($id, $data)
         $meeting->state = "pending";
         $meeting->content = $meetingContent;
         $meeting->id = $meetingId;
+        $meeting->user = $id;
         // Add To User
         $users = $db->users;
         for ($u = 0; $u < sizeof($users); $u++) {
