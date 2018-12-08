@@ -69,7 +69,7 @@ button {
 
 .meeting > div {
     flex-direction: row;
-    max-height: 8vh;
+    max-height: 7vh;
     padding: 1vh;
 }
 

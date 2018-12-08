@@ -47,6 +47,12 @@ function pending() {
             choosing.appendChild(approve);
             choosing.appendChild(decline);
 
+            approve.onclick=()=>{
+                changeState(currentMeeting.id,"approved",getCookie("Admin"),(json)=>{
+
+                });
+            };
+
             meeting.appendChild(title);
             bottom.appendChild(date);
             bottom.appendChild(time);
@@ -67,6 +73,26 @@ function calendar() {
 function login() {
     hideAll();
     show("login");
+}
+
+function changeState(id,state,password,callback){
+    let body = new FormData;
+    body.append("key", password);
+    body.append("set", "state");
+    body.append("state", state);
+    body.append("id", id);
+    fetch("php/admin.php", {
+        method: "POST",
+        cache: "no-store",
+        headers: {
+            'Cache-Control': 'no-cache'
+        },
+        body: body
+    }).then(response => {
+        response.text().then((response) => {
+            callback(JSON.parse(response));
+        });
+    });
 }
 
 function submitLogin() {

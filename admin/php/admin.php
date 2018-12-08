@@ -22,6 +22,7 @@ function main()
                 if ($action === "get") {
                     if (isset($_POST["get"])) {
                         $get = $_POST["get"];
+                        $result->results = array();
                         if ($get === "pending" || $get === "approved" || $get === "denied") {
                             $result->results = byState($get);
                         } else if ($get === "date") {
@@ -31,12 +32,20 @@ function main()
                             }
                         }
                     }
-                    if (!isset($result->results)) {
-                        $result->results = array();
-                    }
                     $result->slot = $msprefs->slot;
                 } else if ($action === "set") {
-
+                    if (isset($_POST["set"])) {
+                        $set = $_POST["set"];
+                        if ($set === "state") {
+                            if (isset($_POST["state"])) {
+                                $state = $_POST["state"];
+                                if (isset($_POST["id"])) {
+                                    $id = $_POST["id"];
+                                    $result->result = changeState($id, $state);
+                                }
+                            }
+                        }
+                    }
                 } else {
                     $result->error = "Unknown Action";
                 }
@@ -64,6 +73,23 @@ function byDate($date)
     global $db;
     $result = array();
 
+    return $result;
+}
+
+function changeState($id, $state)
+{
+    global $db;
+    $result = new stdClass();
+    $result->changed = false;
+    $meetings = $db->meetings;
+    for ($m = 0; $m < sizeof($meetings); $m++) {
+        if ($meetings[$m]->id === $id) {
+            $meetings[$m]->state = $state;
+            $result->changed = true;
+        }
+    }
+    $db->meetings = $meetings;
+    save();
     return $result;
 }
 
