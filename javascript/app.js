@@ -167,7 +167,22 @@ function newMeeting() {
 }
 
 function createMeeting() {
-
+    let body = new FormData;
+    body.append("id", getCookie("userId"));
+    body.append("seed", getCookie("userSeed"));
+    body.append("data", JSON.stringify({}));
+    fetch("php/base.php", {
+        method: "POST",
+        cache: "no-store",
+        headers: {
+            'Cache-Control': 'no-cache'
+        },
+        body: body
+    }).then(response => {
+        response.text().then((response) => {
+            callback(JSON.parse(response));
+        });
+    });
 }
 
 function hideAll() {
