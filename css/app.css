@@ -71,7 +71,7 @@ p {
     text-align: center;
     color: #FFF;
     margin: 1vh;
-    padding: 1vh;
+    padding: 0;
 }
 
 
@@ -87,4 +87,8 @@ p {
 
 .meeting p{
     color: #FFF;
+}
+
+input[type="text"]{
+    direction: rtl;
 }
