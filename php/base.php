@@ -42,7 +42,7 @@ function createMeeting($id, $data)
     $date = $data->time->date;
     $time = $data->time->time;
     $occupied = isOccupied($time, meetingsForDate($date));
-    $inbounds = $time >= $settings->start && $time <= $settings->end;
+    $inbounds = $time >= $settings->start && $time <= $settings->end && $time % $settings->interval === 0;
     $create = !$occupied && $inbounds;
     if ($create) {
         $meetingId = generateMeetingId();
@@ -111,7 +111,7 @@ function loadTimes($date)
     $result = new stdClass();
     $occupied = meetingsForDate($date);
     $empty = array();
-    for ($s = $settings->start; $s < $settings->end; $s+=$settings->interval) {
+    for ($s = $settings->start; $s < $settings->end; $s += $settings->interval) {
         if (!isOccupied($s, $occupied)) {
             array_push($empty, $s);
         }
