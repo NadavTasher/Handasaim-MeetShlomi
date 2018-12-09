@@ -94,6 +94,10 @@ p {
     color: #FFF;
 }
 
+.meetingContent{
+    direction: rtl;
+}
+
 #queue {
     overflow-y: scroll;
     justify-content: start;

@@ -32,7 +32,6 @@ function main()
                             }
                         }
                     }
-                    $result->slot = $msprefs->slot;
                 } else if ($action === "set") {
                     if (isset($_POST["set"])) {
                         $set = $_POST["set"];

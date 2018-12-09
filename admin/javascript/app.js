@@ -26,20 +26,20 @@ function pending() {
         for (let m = 0; m < meetings.length; m++) {
             let currentMeeting = meetings[m];
             let meeting = document.createElement("div");
-            let datetime = document.createElement("div");
             let choosing = document.createElement("div");
-            let name = document.createElement("p");
-            let typestate = document.createElement("p");
-            let phone = document.createElement("a");
+            let datetime = document.createElement("p");
+            let username = document.createElement("p");
+            let typestatusphone = document.createElement("p");
             let reason = document.createElement("p");
             let approve = document.createElement("img");
             let decline = document.createElement("img");
-            let dayMinutes = currentMeeting.slot.slot * json.slot;
-            let minutes = dayMinutes % 60;
-            let hours = (dayMinutes - minutes) / 60;
+            let minutes = currentMeeting.time.time % 60;
+            let hours = (currentMeeting.time.time - minutes) / 60;
             meeting.classList.add("meeting");
+            reason.classList.add("meetingContent");
+            username.classList.add("meetingContent");
             reason.innerHTML = currentMeeting.content.reason;
-            datetime.innerHTML = (currentMeeting.slot.date.day + "." + currentMeeting.slot.date.month+"."+currentMeeting.slot.date.year)+" at "+(hours + ":" + (minutes < 10 ? "0" : "") + minutes);
+            datetime.innerHTML = (currentMeeting.time.date.day + "." + currentMeeting.time.date.month + "." + currentMeeting.time.date.year) + " at " + (hours + ":" + (minutes < 10 ? "0" : "") + minutes);
             approve.src = "images/approved.svg";
             decline.src = "images/denied.svg";
             approve.onclick = () => {
@@ -54,17 +54,18 @@ function pending() {
             };
             choosing.appendChild(approve);
             choosing.appendChild(decline);
-            meeting.appendChild(name);
-            meeting.appendChild(typestate);
-            meeting.appendChild(phone);
+            meeting.appendChild(reason);
+            meeting.appendChild(username);
+            meeting.appendChild(typestatusphone);
+            meeting.appendChild(datetime);
             meeting.appendChild(choosing);
             pending.appendChild(meeting);
-            loadUserInfo(currentMeeting.user,(user)=>{
-                phone.href="tel:"+user.user.phone;
-                phone.innerHTML=user.user.phone;
-                name.innerHTML=user.user.name;
-                typestate.innerHTML=(user.user.type.substring(0,1).toUpperCase()+user.user.type.substring(1).toLowerCase()) + (user.user.state.toUpperCase());
-
+            loadUserInfo(currentMeeting.user, (user) => {
+                username.innerHTML = user.user.name;
+                let phone = document.createElement("a");
+                phone.href = "tel:" + user.user.phone;
+                phone.innerHTML = user.user.phone;
+                typestatusphone.innerHTML = (user.user.type.substring(0, 1).toUpperCase() + user.user.type.substring(1).toLowerCase()) + (user.user.status === "vip" ? " VIP" : "") + ", " + phone.outerHTML;
             });
         }
     });
@@ -134,7 +135,7 @@ function loadLogin(password, callback) {
     });
 }
 
-function loadUserInfo(id,callback) {
+function loadUserInfo(id, callback) {
     let body = new FormData;
     body.append("id", id);
     fetch("../php/base.php", {

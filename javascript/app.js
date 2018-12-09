@@ -18,7 +18,6 @@ function home() {
         hide("newUser");
         loadUser(getCookie("UserID"), (userinfo) => {
             show("homeView");
-            echo(userinfo);
             let queue = get("queue");
             clear(queue);
             let meetings = userinfo.user.meetings;
@@ -26,17 +25,15 @@ function home() {
                 let currentMeeting = meetings[m];
                 let meeting = document.createElement("div");
                 let bottom = document.createElement("div");
-                let title = document.createElement("p");
-                let date = document.createElement("p");
-                let time = document.createElement("p");
+                let reason = document.createElement("p");
+                let datetime = document.createElement("p");
                 let state = document.createElement("img");
                 meeting.classList.add("meeting");
-                title.innerHTML = currentMeeting.content.reason;
-                date.innerHTML = (currentMeeting.time.date.day) + "." + (currentMeeting.time.date.month);
-                let dayMinutes = currentMeeting.time.time;
-                let minutes = dayMinutes % 60;
-                let hours = (dayMinutes - minutes) / 60;
-                time.innerHTML = hours + ":" + (minutes < 10 ? "0" : "") + minutes;
+                reason.classList.add("meetingContent");
+                reason.innerHTML = currentMeeting.content.reason;
+                let minutes = currentMeeting.time.time % 60;
+                let hours = (currentMeeting.time.time - minutes) / 60;
+                datetime.innerHTML = (currentMeeting.time.date.day + "." + currentMeeting.time.date.month + "." + currentMeeting.time.date.year) + " at " + (hours + ":" + (minutes < 10 ? "0" : "") + minutes);
                 if (currentMeeting.state === "pending") {
                     state.src = "images/pending.svg";
                 } else if (currentMeeting.state === "approved") {
@@ -44,9 +41,8 @@ function home() {
                 } else {
                     state.src = "images/denied.svg";
                 }
-                meeting.appendChild(title);
-                bottom.appendChild(date);
-                bottom.appendChild(time);
+                meeting.appendChild(reason);
+                bottom.appendChild(datetime);
                 bottom.appendChild(state);
                 meeting.appendChild(bottom);
                 queue.appendChild(meeting);
@@ -82,7 +78,7 @@ function loadUser(UserID, callback) {
     });
 }
 
-function loadOpentimes(date, callback) {
+function loadOpenTimes(date, callback) {
     let body = new FormData;
     body.append("date", JSON.stringify(date));
     fetch("php/base.php", {
@@ -168,12 +164,12 @@ function createUser() {
 }
 
 function monthChanged() {
-    loadDays(parseInt(month.value, 10));
+    loadDays(parseInt(get("new-month").value, 10));
     dayChanged();
 }
 
 function dayChanged() {
-    loadOpentimes(getDate(), (base) => {
+    loadOpenTimes(getDate(), (base) => {
         let timeSelect = get("new-time");
         clear(timeSelect);
         let times = base.times;
@@ -192,7 +188,6 @@ function dayChanged() {
 function loadDays(month) {
     let days = get("new-day");
     clear(days);
-
     function getDayName(day) {
         switch (day) {
             case 0:
