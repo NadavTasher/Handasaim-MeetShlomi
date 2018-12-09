@@ -1,1 +1,6 @@
-{"users":[{"id":8854,"seed":51018504,"name":"Nadav","phone":"0654783984","type":"student","status":"standard","meetings":[]},{"id":7352,"seed":91908714,"name":"Nadav","phone":"0746384905","type":"student","status":"standard","meetings":[70998,97817,81440,18397]}],"meetings":[{"time":{"time":650,"date":{"day":9,"month":12,"year":2018}},"state":"approved","content":{"reason":"hala"},"id":70998,"user":7352},{"time":{"time":690,"date":{"day":9,"month":12,"year":2018}},"state":"approved","content":{"reason":"gdjg"},"id":97817,"user":7352},{"time":{"time":730,"date":{"day":9,"month":12,"year":2018}},"state":"approved","content":{"reason":"yfdgf"},"id":81440,"user":7352},{"time":{"time":510,"date":{"day":10,"month":12,"year":2018}},"state":"pending","content":{"reason":"bcz"},"id":18397,"user":7352}]}
+{
+  "users": [
+  ],
+  "meetings": [
+  ]
+}
