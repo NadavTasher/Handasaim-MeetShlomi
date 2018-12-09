@@ -64,17 +64,17 @@ button {
     color: #FFF;
     margin: 1vh;
     padding: 0;
-    min-height: 24vh;
+    min-height: 44vh;
 }
 
 .meeting > div {
     flex-direction: row;
-    max-height: 7vh;
+    max-height: 6vh;
     padding: 1vh;
     align-items: center;
 }
 
-.meetingContent{
+.meetingContent {
     direction: rtl;
 }
 
@@ -87,7 +87,11 @@ button {
     color: #FFF;
 }
 
-#pending, #calendar {
+#pending, #queue {
     overflow-y: scroll;
     justify-content: start;
+}
+
+#queue {
+    max-height: 80vh;
 }

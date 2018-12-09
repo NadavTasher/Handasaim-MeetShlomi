@@ -73,7 +73,15 @@ function byDate($date)
 {
     global $db;
     $result = array();
-
+    $meetings = $db->meetings;
+    for ($m = 0; $m < sizeof($meetings); $m++) {
+        $checkAgainst = $meetings[$m]->time->date;
+        if ($checkAgainst->day === $date->day &&
+            $checkAgainst->month === $date->month &&
+            $checkAgainst->year === $date->year) {
+            array_push($result,$meetings[$m]);
+        }
+    }
     return $result;
 }
 
