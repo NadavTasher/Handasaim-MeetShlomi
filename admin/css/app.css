@@ -74,17 +74,9 @@ button {
     align-items: center;
 }
 
-.meeting > div > div > img {
+.meeting > div > img {
     max-height: inherit;
     padding: 1vh;
-}
-
-.meeting > div > div {
-    background-color: #FFF;
-    border-radius: 1vh;
-    border-color: transparent;
-    max-height: inherit;
-    flex-direction: row;
 }
 
 .meeting p {

@@ -1,3 +1,11 @@
+function hideView(view) {
+    view.style.display = "none";
+}
+
+function showView(view) {
+    view.style.removeProperty("display");
+}
+
 function hide(id) {
     get(id).style.display = "none";
 }

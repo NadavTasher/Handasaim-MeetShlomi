@@ -40,7 +40,7 @@ function main()
                             if (isset($_POST["state"])) {
                                 $state = $_POST["state"];
                                 if (isset($_POST["id"])) {
-                                    $id = $_POST["id"];
+                                    $id = intval($_POST["id"]);
                                     $result->result = changeState($id, $state);
                                 }
                             }
