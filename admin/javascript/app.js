@@ -19,7 +19,7 @@ function pending() {
     hideHome();
     show("home");
     show("pending");
-    loadPending(getCookie("Admin"), (json) => {
+    loadPending((json) => {
         let pending = get("pending");
         clear(pending);
         let meetings = json.results;
@@ -44,12 +44,12 @@ function pending() {
             decline.src = "images/denied.svg";
             approve.onclick = () => {
                 hideView(meeting);
-                changeState(currentMeeting.id, "approved", getCookie("Admin"), (json) => {
+                changeState(currentMeeting.id, "approved", (json) => {
                 });
             };
             decline.onclick = () => {
                 hideView(meeting);
-                changeState(currentMeeting.id, "denied", getCookie("Admin"), (json) => {
+                changeState(currentMeeting.id, "denied", (json) => {
                 });
             };
             choosing.appendChild(approve);
@@ -80,7 +80,7 @@ function calendar() {
 }
 
 function addDates() {
-    loadDates(getCookie("Admin"), (json) => {
+    loadDates((json) => {
         let today = new Date(Date.now());
         today.setHours(0, 0, 0, 0);
         let day = get("day");

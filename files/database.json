@@ -1,6 +1,1 @@
-{
-  "users": [
-  ],
-  "meetings": [
-  ]
-}
+{"users":[{"id":3299,"seed":25467349,"name":"Testo","phone":"0987654321","type":"student","status":"standard","meetings":[5122]}],"meetings":[{"time":{"time":510,"date":{"day":9,"month":12,"year":2018}},"state":"pending","content":{"reason":"jjjjjjjjjjj"},"id":5122,"user":3299}]}
