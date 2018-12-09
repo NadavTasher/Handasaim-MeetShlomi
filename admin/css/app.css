@@ -64,7 +64,7 @@ button {
     color: #FFF;
     margin: 1vh;
     padding: 0;
-    min-height: 44vh;
+    min-height: min-content;
 }
 
 .meeting > div {
