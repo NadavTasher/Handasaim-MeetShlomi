@@ -10,7 +10,7 @@ main();
 // Functions
 function main()
 {
-    global $result, $msprefs;
+    global $result;
     if (isset($_POST["key"])) {
         // User Actions
         $key = $_POST["key"];
@@ -30,6 +30,8 @@ function main()
                                 $date = json_decode($_POST["date"]);
                                 $result->results = byDate($date);
                             }
+                        } else if ($get === "dates") {
+                            $result->dates = getDates();
                         }
                     }
                 } else if ($action === "set") {
@@ -72,6 +74,28 @@ function byDate($date)
     global $db;
     $result = array();
 
+    return $result;
+}
+
+function getDates()
+{
+    global $db;
+    $result = array();
+    $meetings = $db->meetings;
+    for ($m = 0; $m < sizeof($meetings); $m++) {
+        $checkAgainst = $meetings[$m]->time->date;
+        $alreadyInserted = false;
+        for ($i = 0; $i < sizeof($result) && !$alreadyInserted; $i++) {
+            if ($checkAgainst->day === $result[$i]->day &&
+                $checkAgainst->month === $result[$i]->month &&
+                $checkAgainst->year === $result[$i]->year) {
+                $alreadyInserted = true;
+            }
+        }
+        if (!$alreadyInserted) {
+            array_push($result, $meetings[$m]->time->date);
+        }
+    }
     return $result;
 }
 

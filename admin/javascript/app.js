@@ -76,6 +76,103 @@ function calendar() {
     hideHome();
     show("home");
     show("calendar");
+    loadDates(getCookie("Admin"), (json) => {
+        let today = new Date(Date.now());
+        today.setHours(0, 0, 0, 0);
+        let day = get("day");
+        clear(day);
+        let dates=[];
+        let jsonDates = json.dates;
+        for (let d = 0; d < jsonDates.length; d++) {
+            let currentDate = jsonDates[d];
+            let date = new Date();
+            date.setFullYear(currentDate.year);
+            date.setMonth(currentDate.month-1);
+            date.setDate(currentDate.day);
+            if (date >= today) {
+                dates.push(date);
+            }
+        }
+        dates=bubblesort(dates);
+        for(let q=0;q<dates.length;q++){
+            let option=document.createElement("option");
+            let date={day:dates[q].getDate(),month:dates[q].getMonth(),year:dates[q].getFullYear()};
+            option.value=JSON.stringify(date);
+            option.innerHTML=getDayName(dates[q].getDay())+", "+getMonthName(dates[q].getMonth())+" "+dates[q].getDate()+", "+dates[q].getFullYear();
+            day.appendChild(option);
+        }
+    });
+}
+
+function getDayName(day) {
+    switch (day) {
+        case 0:
+            return "Sun";
+        case 1:
+            return "Mon";
+        case 2:
+            return "Tue";
+        case 3:
+            return "Wed";
+        case 4:
+            return "Thu";
+        case 5:
+            return "Fri";
+        case 6:
+            return "Sat";
+        default:
+            return "???";
+    }
+}
+
+function getMonthName(month) {
+    switch (month) {
+        case 0:
+            return "Jan";
+        case 1:
+            return "Feb";
+        case 2:
+            return "Mar";
+        case 3:
+            return "Apr";
+        case 4:
+            return "May";
+        case 5:
+            return "Jun";
+        case 6:
+            return "Jul";
+        case 7:
+            return "Aug";
+        case 8:
+            return "Sep";
+        case 9:
+            return "Oct";
+        case 10:
+            return "Nov";
+        case 11:
+            return "Dec";
+        default:
+            return "???";
+    }
+}
+
+function bubblesort(dates){
+    function bubble(dates) {
+        let newDates=dates;
+        if(dates.length>1) {
+            for (let d = 1; d < newDates.length; d++) {
+                if (newDates[d] < newDates[d - 1]) {
+                    let temp=newDates[d];
+                    newDates[d]=newDates[d-1];
+                    newDates[d-1]=temp;
+                }
+            }
+        }
+        return newDates;
+    }
+    let newDates=dates;
+    while((newDates=bubble(newDates))!==newDates){}
+    return newDates;
 }
 
 function login() {
@@ -157,6 +254,25 @@ function loadPending(password, callback) {
     body.append("key", password);
     body.append("action", "get");
     body.append("get", "pending");
+    fetch("php/admin.php", {
+        method: "POST",
+        cache: "no-store",
+        headers: {
+            'Cache-Control': 'no-cache'
+        },
+        body: body
+    }).then(response => {
+        response.text().then((response) => {
+            callback(JSON.parse(response));
+        });
+    });
+}
+
+function loadDates(password, callback) {
+    let body = new FormData;
+    body.append("key", password);
+    body.append("action", "get");
+    body.append("get", "dates");
     fetch("php/admin.php", {
         method: "POST",
         cache: "no-store",

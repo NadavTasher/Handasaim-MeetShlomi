@@ -42,7 +42,7 @@ function createMeeting($id, $data)
     $date = $data->time->date;
     $time = $data->time->time;
     $occupied = isOccupied($time, meetingsForDate($date));
-    $inbounds = $time >= $settings->start && $time <= $settings->end && $time % $settings->interval === 0;
+    $inbounds = $time >= $settings->start && $time <= $settings->end && ($time-$settings->start) % $settings->interval === 0;
     $create = !$occupied && $inbounds;
     if ($create) {
         $meetingId = generateMeetingId();
