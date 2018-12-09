@@ -223,9 +223,9 @@ function login() {
     show("login");
 }
 
-function changeState(id, state, password, callback) {
+function changeState(id, state, callback) {
     let body = new FormData;
-    body.append("key", password);
+    body.append("key", getCookie("Admin"));
     body.append("action", "set");
     body.append("set", "state");
     body.append("state", state);
@@ -292,9 +292,9 @@ function loadUserInfo(id, callback) {
     });
 }
 
-function loadPending(password, callback) {
+function loadPending(callback) {
     let body = new FormData;
-    body.append("key", password);
+    body.append("key", getCookie("Admin"));
     body.append("action", "get");
     body.append("get", "pending");
     fetch("php/admin.php", {
@@ -311,9 +311,9 @@ function loadPending(password, callback) {
     });
 }
 
-function loadDates(password, callback) {
+function loadDates(callback) {
     let body = new FormData;
-    body.append("key", password);
+    body.append("key", getCookie("Admin"));
     body.append("action", "get");
     body.append("get", "dates");
     fetch("php/admin.php", {

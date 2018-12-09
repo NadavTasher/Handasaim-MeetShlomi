@@ -79,7 +79,9 @@ function byDate($date)
         if ($checkAgainst->day === $date->day &&
             $checkAgainst->month === $date->month &&
             $checkAgainst->year === $date->year) {
-            array_push($result,$meetings[$m]);
+            if ($meetings[$m]->state === "approved") {
+                array_push($result, $meetings[$m]);
+            }
         }
     }
     return $result;
