@@ -74,6 +74,10 @@ button {
     align-items: center;
 }
 
+.meeting>p{
+    direction: rtl;
+}
+
 .meeting > div > img {
     max-height: inherit;
     padding: 1vh;

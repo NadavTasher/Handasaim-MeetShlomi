@@ -26,21 +26,20 @@ function pending() {
         for (let m = 0; m < meetings.length; m++) {
             let currentMeeting = meetings[m];
             let meeting = document.createElement("div");
-            let bottom = document.createElement("div");
+            let datetime = document.createElement("div");
             let choosing = document.createElement("div");
-            let identifier = document.createElement("p");
-            let title = document.createElement("p");
-            let date = document.createElement("p");
-            let time = document.createElement("p");
+            let name = document.createElement("p");
+            let typestate = document.createElement("p");
+            let phone = document.createElement("a");
+            let reason = document.createElement("p");
             let approve = document.createElement("img");
             let decline = document.createElement("img");
             let dayMinutes = currentMeeting.slot.slot * json.slot;
             let minutes = dayMinutes % 60;
             let hours = (dayMinutes - minutes) / 60;
             meeting.classList.add("meeting");
-            title.innerHTML = currentMeeting.content.reason;
-            date.innerHTML = (currentMeeting.slot.date.day) + "." + (currentMeeting.slot.date.month)+"."+currentMeeting.slot.date.year;
-            time.innerHTML = hours + ":" + (minutes < 10 ? "0" : "") + minutes;
+            reason.innerHTML = currentMeeting.content.reason;
+            datetime.innerHTML = (currentMeeting.slot.date.day + "." + currentMeeting.slot.date.month+"."+currentMeeting.slot.date.year)+" at "+(hours + ":" + (minutes < 10 ? "0" : "") + minutes);
             approve.src = "images/approved.svg";
             decline.src = "images/denied.svg";
             approve.onclick = () => {
@@ -55,18 +54,17 @@ function pending() {
             };
             choosing.appendChild(approve);
             choosing.appendChild(decline);
-            meeting.appendChild(title);
-            meeting.appendChild(identifier);
-            bottom.appendChild(date);
-            bottom.appendChild(time);
-            meeting.appendChild(bottom);
+            meeting.appendChild(name);
+            meeting.appendChild(typestate);
+            meeting.appendChild(phone);
             meeting.appendChild(choosing);
             pending.appendChild(meeting);
             loadUserInfo(currentMeeting.user,(user)=>{
-                let telLink=document.createElement("a");
-                telLink.href="tel:"+user.user.phone;
-                telLink.innerHTML=user.user.phone;
-                identifier.innerHTML=user.user.name+" ("+telLink.outerHTML+")";
+                phone.href="tel:"+user.user.phone;
+                phone.innerHTML=user.user.phone;
+                name.innerHTML=user.user.name;
+                typestate.innerHTML=(user.user.type.substring(0,1).toUpperCase()+user.user.type.substring(1).toLowerCase()) + (user.user.state.toUpperCase());
+
             });
         }
     });

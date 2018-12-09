@@ -28,7 +28,7 @@ function main()
         }
     } else if (isset($_POST["date"])) {
         $date = json_decode($_POST["date"]);
-        $result->slots = loadSlots($date);
+        $result->times = loadTimes($date);
     } else {
         $result->error = "Unknown Action";
     }
@@ -39,24 +39,24 @@ function createMeeting($id, $data)
 {
     global $db, $settings;
     $result = new stdClass();
-    $date = $data->slot->date;
-    $slot = $data->slot->slot;
-    $occupied = isOccupied($slot, meetingsForDate($date));
-    $inbounds = $slot >= $settings->start && $slot <= $settings->end;
+    $date = $data->time->date;
+    $time = $data->time->time;
+    $occupied = isOccupied($time, meetingsForDate($date));
+    $inbounds = $time >= $settings->start && $time <= $settings->end;
     $create = !$occupied && $inbounds;
     if ($create) {
         $meetingId = generateMeetingId();
         $meeting = new stdClass();
         $meetingContent = new stdClass();
-        $meetingSlot = new stdClass();
-        $meetingSlotDate = new stdClass();
-        $meetingSlotDate->day = $date->day;
-        $meetingSlotDate->month = $date->month;
-        $meetingSlotDate->year = $date->year;
-        $meetingSlot->slot = $slot;
-        $meetingSlot->date = $meetingSlotDate;
+        $meetingTime = new stdClass();
+        $meetingTimeDate = new stdClass();
+        $meetingTimeDate->day = $date->day;
+        $meetingTimeDate->month = $date->month;
+        $meetingTimeDate->year = $date->year;
+        $meetingTime->time = $time;
+        $meetingTime->date = $meetingTimeDate;
         $meetingContent->reason = $data->content->reason;
-        $meeting->slot = $meetingSlot;
+        $meeting->time = $meetingTime;
         $meeting->state = "pending";
         $meeting->content = $meetingContent;
         $meeting->id = $meetingId;
@@ -80,10 +80,10 @@ function createMeeting($id, $data)
     return $result;
 }
 
-function isOccupied($slot, $occupied)
+function isOccupied($time, $occupied)
 {
     for ($m = 0; $m < sizeof($occupied); $m++) {
-        if ($occupied[$m]->slot->slot === $slot && $occupied[$m]->state !== "denied") return true;
+        if ($occupied[$m]->time->time === $time && $occupied[$m]->state !== "denied") return true;
     }
     return false;
 }
@@ -95,7 +95,7 @@ function meetingsForDate($date)
     $meetings = $db->meetings;
     for ($m = 0; $m < sizeof($meetings); $m++) {
         $currentMeeting = $meetings[$m];
-        $currentDate = $currentMeeting->slot->date;
+        $currentDate = $currentMeeting->time->date;
         if ($currentDate->day === $date->day &&
             $currentDate->month === $date->month &&
             $currentDate->year === $date->year) {
@@ -105,19 +105,18 @@ function meetingsForDate($date)
     return $result;
 }
 
-function loadSlots($date)
+function loadTimes($date)
 {
     global $settings;
     $result = new stdClass();
-    $result->slot = $settings->slot;
-    $occupiedSlots = meetingsForDate($date);
-    $emptySlots = array();
-    for ($s = $settings->start; $s < $settings->end; $s++) {
-        if (!isOccupied($s, $occupiedSlots)) {
-            array_push($emptySlots, $s);
+    $occupied = meetingsForDate($date);
+    $empty = array();
+    for ($s = $settings->start; $s < $settings->end; $s+=$settings->interval) {
+        if (!isOccupied($s, $occupied)) {
+            array_push($empty, $s);
         }
     }
-    $result->slots = $emptySlots;
+    $result->times = $empty;
     return $result;
 }
 
@@ -131,10 +130,11 @@ function loadUser($id)
         if ($currentUser->id === $id) {
             $user->name = $currentUser->name;
             $user->phone = $currentUser->phone;
+            $user->type = $currentUser->type;
+            $user->status = $currentUser->status;
             // Only Load Indexes
             // $user->meetings = $currentUser->meetings;
             // Load Full Meetings
-            $user->slot = $settings->slot;
             $meetings = array();
             for ($m = 0; $m < sizeof($currentUser->meetings); $m++) {
                 array_push($meetings, loadMeeting($currentUser->meetings[$m]));

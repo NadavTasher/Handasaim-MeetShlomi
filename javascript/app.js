@@ -32,17 +32,17 @@ function home() {
                 let state = document.createElement("img");
                 meeting.classList.add("meeting");
                 title.innerHTML = currentMeeting.content.reason;
-                date.innerHTML = (currentMeeting.slot.date.day) + "." + (currentMeeting.slot.date.month);
-                let dayMinutes = currentMeeting.slot.slot * userinfo.user.slot;
+                date.innerHTML = (currentMeeting.time.date.day) + "." + (currentMeeting.time.date.month);
+                let dayMinutes = currentMeeting.time.time;
                 let minutes = dayMinutes % 60;
                 let hours = (dayMinutes - minutes) / 60;
                 time.innerHTML = hours + ":" + (minutes < 10 ? "0" : "") + minutes;
-                if(currentMeeting.state==="pending"){
-                    state.src="images/pending.svg";
-                }else if(currentMeeting.state==="approved"){
-                    state.src="images/approved.svg";
-                }else{
-                    state.src="images/denied.svg";
+                if (currentMeeting.state === "pending") {
+                    state.src = "images/pending.svg";
+                } else if (currentMeeting.state === "approved") {
+                    state.src = "images/approved.svg";
+                } else {
+                    state.src = "images/denied.svg";
                 }
                 meeting.appendChild(title);
                 bottom.appendChild(date);
@@ -82,7 +82,7 @@ function loadUser(UserID, callback) {
     });
 }
 
-function loadOpenSlots(date, callback) {
+function loadOpentimes(date, callback) {
     let body = new FormData;
     body.append("date", JSON.stringify(date));
     fetch("php/base.php", {
@@ -94,7 +94,7 @@ function loadOpenSlots(date, callback) {
         body: body
     }).then(response => {
         response.text().then((response) => {
-            callback(JSON.parse(response).slots);
+            callback(JSON.parse(response).times);
         });
     });
 }
@@ -106,8 +106,8 @@ function createMeeting() {
             content: {
                 reason: reason
             },
-            slot: {
-                slot: parseInt(get("new-time").value, 10),
+            time: {
+                time: parseInt(get("new-time").value, 10),
                 date: getDate()
             }
         };
@@ -168,26 +168,23 @@ function createUser() {
 }
 
 function monthChanged() {
-    let day = get("new-day"), month = get("new-month");
-    let dayValue = day.value;
     loadDays(parseInt(month.value, 10));
     dayChanged();
 }
 
 function dayChanged() {
-    loadOpenSlots(getDate(), (base) => {
-        let time = get("new-time");
-        clear(time);
-        let slot = base.slot;
-        let slots = base.slots;
-        for (let s = 0; s < slots.length; s++) {
-            let slotMinutes = slots[s] * slot;
-            let minutes = slotMinutes % 60;
-            let hours = (slotMinutes - minutes) / 60;
+    loadOpentimes(getDate(), (base) => {
+        let timeSelect = get("new-time");
+        clear(timeSelect);
+        let times = base.times;
+        for (let s = 0; s < times.length; s++) {
+            let timeMinutes = times[s];
+            let minutes = timeMinutes % 60;
+            let hours = (timeMinutes - minutes) / 60;
             let option = document.createElement("option");
-            option.value = slots[s];
+            option.value = times[s];
             option.innerHTML = hours + ":" + (minutes < 10 ? "0" : "") + minutes;
-            time.appendChild(option);
+            timeSelect.appendChild(option);
         }
     });
 }
