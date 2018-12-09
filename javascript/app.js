@@ -61,6 +61,11 @@ function meeting() {
     monthChanged();
 }
 
+function about() {
+    hideAll();
+    show("about");
+}
+
 function loadUser(UserID, callback) {
     let body = new FormData;
     body.append("id", UserID);
@@ -188,6 +193,7 @@ function dayChanged() {
 function loadDays(month) {
     let days = get("new-day");
     clear(days);
+
     function getDayName(day) {
         switch (day) {
             case 0:

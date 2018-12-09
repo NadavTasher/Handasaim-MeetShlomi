@@ -42,7 +42,7 @@ function createMeeting($id, $data)
     $date = $data->time->date;
     $time = $data->time->time;
     $occupied = isOccupied($time, meetingsForDate($date));
-    $inbounds = $time >= $settings->start && $time <= $settings->end && ($time-$settings->start) % $settings->interval === 0;
+    $inbounds = $time >= $settings->start && $time <= $settings->end && ($time - $settings->start) % $settings->interval === 0;
     $create = !$occupied && $inbounds;
     if ($create) {
         $meetingId = generateMeetingId();
@@ -122,7 +122,7 @@ function loadTimes($date)
 
 function loadUser($id)
 {
-    global $db, $settings;
+    global $db;
     $users = $db->users;
     $user = new stdClass();
     for ($i = 0; $i < sizeof($users); $i++) {
@@ -149,25 +149,27 @@ function createUser($data)
 {
     global $db;
     $result = new stdClass();
-    $id = generateUserId();
-    $seed = rand(10000000, 99000000);
-    $user = new stdClass();
-    $user->id = $id;
-    $user->seed = $seed;
-    $user->name = $data->name;
-    $user->phone = $data->phone;
-    $user->type = $data->type;
-    $user->status = "standard";
-    $user->meetings = [];
-    // Write To Result
-    $result->id = $id;
-    $result->seed = $seed;
-    // Write To Userbase
-    $users = $db->users;
-    array_push($users, $user);
-    $db->users = $users;
-    // Write Userbase
-    save();
+    if (isset($data->name) && isset($data->phone)) {
+        $id = generateUserId();
+        $seed = rand(10000000, 99000000);
+        $user = new stdClass();
+        $user->id = $id;
+        $user->seed = $seed;
+        $user->name = $data->name;
+        $user->phone = $data->phone;
+        $user->type = $data->type;
+        $user->status = "standard";
+        $user->meetings = [];
+        // Write To Result
+        $result->id = $id;
+        $result->seed = $seed;
+        // Write To Userbase
+        $users = $db->users;
+        array_push($users, $user);
+        $db->users = $users;
+        // Write Userbase
+        save();
+    }
     return $result;
 }
 

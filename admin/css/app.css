@@ -37,7 +37,9 @@ input,
 select,
 option,
 button {
+    -webkit-appearance: none;
     font-family: Arial, ArialHebrew, sans-serif;
+    text-align-last: center;
     font-size: x-large;
     text-align: center;
     color: #FFF;
