@@ -1,5 +1,8 @@
 # database.json example
+```
 {
   "users": [],
-  "meetings": []
+  "meetings": [],
+  "closed":[]
 }
+```

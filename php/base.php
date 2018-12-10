@@ -34,6 +34,9 @@ function main()
     } else if (isset($_POST["date"])) {
         $date = json_decode($_POST["date"]);
         $result->times = loadTimes($date);
+    } else if (isset($_POST["closed"])) {
+        $date = json_decode($_POST["closed"]);
+        $result->closed = loadClosed($date);
     } else {
         $result->error = "Unknown Action";
     }
@@ -49,8 +52,9 @@ function createMeeting($id, $seed, $data)
         $date = $data->time->date;
         $time = $data->time->time;
         $occupied = isOccupied($time, meetingsForDate($date));
+        $closed = isClosed($date);
         $inbounds = $time >= $settings->start && $time <= $settings->end && ($time - $settings->start) % $settings->interval === 0;
-        $create = !$occupied && $inbounds;
+        $create = !$occupied && $inbounds && !$closed;
         if ($create) {
             $meetingId = generateMeetingId();
             $meeting = new stdClass();
@@ -139,6 +143,21 @@ function loadTimes($date)
         }
     }
     $result->times = $empty;
+    return $result;
+}
+
+function loadClosed($date)
+{
+    global $db;
+    $result = array();
+    $days = $db->closed;
+    for ($i = 0; $i < sizeof($days); $i++) {
+        $compareAgainst = $days[$i];
+        if ($compareAgainst->month === $date->month &&
+            $compareAgainst->year === $date->year) {
+            array_push($result, $compareAgainst);
+        }
+    }
     return $result;
 }
 
@@ -247,6 +266,21 @@ function generateUserId()
         if (!$found) $id = $random;
     }
     return $id;
+}
+
+function isClosed($date)
+{
+    global $db;
+    $days = $db->closed;
+    for ($i = 0; $i < sizeof($days); $i++) {
+        $compareAgainst = $days[$i];
+        if ($compareAgainst->day === $date->day &&
+            $compareAgainst->month === $date->month &&
+            $compareAgainst->year === $date->year) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function save()

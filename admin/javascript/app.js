@@ -71,6 +71,10 @@ function pending() {
     });
 }
 
+function closed(){
+
+}
+
 function calendar() {
     hideAll();
     hideHome();

@@ -17,20 +17,20 @@ function home() {
     if (getCookie("UserID") !== undefined && getCookie("UserID") !== "undefined") {
         hide("newUser");
         loadUser(getCookie("UserID"), (userinfo) => {
-            let today=new Date(Date.now());
-            today.setHours(0,0,0,0);
+            let today = new Date(Date.now());
+            today.setHours(0, 0, 0, 0);
             show("homeView");
             let queue = get("queue");
             clear(queue);
             let meetings = userinfo.user.meetings;
             for (let m = 0; m < meetings.length; m++) {
                 let currentMeeting = meetings[m];
-                let currentDate=new Date();
-                currentDate.setHours(0,0,0,0);
+                let currentDate = new Date();
+                currentDate.setHours(0, 0, 0, 0);
                 currentDate.setDate(currentMeeting.time.date.day);
-                currentDate.setMonth(currentMeeting.time.date.month-1);
+                currentDate.setMonth(currentMeeting.time.date.month - 1);
                 currentDate.setFullYear(currentMeeting.time.date.year);
-                if(today<=currentDate) {
+                if (today <= currentDate) {
                     let meeting = document.createElement("div");
                     let bottom = document.createElement("div");
                     let reason = document.createElement("p");
@@ -99,6 +99,24 @@ function loadOpenTimes(date, callback) {
     }).then(response => {
         response.text().then((response) => {
             callback(JSON.parse(response).times);
+        });
+    });
+}
+
+function loadClosedDays(month, callback) {
+    let date = {month: month, year: getYear(month)};
+    let body = new FormData;
+    body.append("closed", JSON.stringify(date));
+    fetch("php/base.php", {
+        method: "POST",
+        cache: "no-store",
+        headers: {
+            'Cache-Control': 'no-cache'
+        },
+        body: body
+    }).then(response => {
+        response.text().then((response) => {
+            callback(JSON.parse(response));
         });
     });
 }
@@ -232,9 +250,21 @@ function loadDays(month) {
         }
     }
 
-    for (let d = 1; d < 32; d++) {
-        addDay(month, d);
-    }
+    loadClosedDays(month, (json) => {
+        let closed = json.closed;
+        for (let d = 1; d < 32; d++) {
+            let currentClosed = false;
+            for (let c = 0; c < closed.length; c++) {
+                let compareAgainst = closed[c];
+                if (compareAgainst.day === d) {
+                    currentClosed = true;
+                }
+            }
+            if (!currentClosed) {
+                addDay(month, d);
+            }
+        }
+    });
 }
 
 function loadMonths() {
