@@ -17,35 +17,38 @@ function home() {
     if (getCookie("UserID") !== undefined && getCookie("UserID") !== "undefined") {
         hide("newUser");
         loadUser(getCookie("UserID"), (userinfo) => {
+            let today=new Date(Date.now());
+            today.setHours(0,0,0,0);
             show("homeView");
             let queue = get("queue");
             clear(queue);
             let meetings = userinfo.user.meetings;
             for (let m = 0; m < meetings.length; m++) {
                 let currentMeeting = meetings[m];
-                let meeting = document.createElement("div");
-                let bottom = document.createElement("div");
-                let reason = document.createElement("p");
-                let datetime = document.createElement("p");
-                let state = document.createElement("img");
-                meeting.classList.add("meeting");
-                reason.classList.add("meetingContent");
-                reason.innerHTML = currentMeeting.content.reason;
-                let minutes = currentMeeting.time.time % 60;
-                let hours = (currentMeeting.time.time - minutes) / 60;
-                datetime.innerHTML = (currentMeeting.time.date.day + "." + currentMeeting.time.date.month + "." + currentMeeting.time.date.year) + " at " + (hours + ":" + (minutes < 10 ? "0" : "") + minutes);
-                if (currentMeeting.state === "pending") {
-                    state.src = "images/pending.svg";
-                } else if (currentMeeting.state === "approved") {
-                    state.src = "images/approved.svg";
-                } else {
-                    state.src = "images/denied.svg";
+                let currentDate=new Date();
+                currentDate.setHours(0,0,0,0);
+                currentDate.setDate(currentMeeting.time.date.day);
+                currentDate.setMonth(currentMeeting.time.date.month-1);
+                currentDate.setFullYear(currentMeeting.time.date.year);
+                if(today<=currentDate) {
+                    let meeting = document.createElement("div");
+                    let bottom = document.createElement("div");
+                    let reason = document.createElement("p");
+                    let datetime = document.createElement("p");
+                    let state = document.createElement("img");
+                    meeting.classList.add("meeting");
+                    reason.classList.add("meetingContent");
+                    reason.innerHTML = currentMeeting.content.reason;
+                    let minutes = currentMeeting.time.time % 60;
+                    let hours = (currentMeeting.time.time - minutes) / 60;
+                    datetime.innerHTML = (currentMeeting.time.date.day + "." + currentMeeting.time.date.month + "." + currentMeeting.time.date.year) + " at " + (hours + ":" + (minutes < 10 ? "0" : "") + minutes);
+                    state.src = "images/" + currentMeeting.state + ".svg";
+                    meeting.appendChild(reason);
+                    bottom.appendChild(datetime);
+                    bottom.appendChild(state);
+                    meeting.appendChild(bottom);
+                    queue.appendChild(meeting);
                 }
-                meeting.appendChild(reason);
-                bottom.appendChild(datetime);
-                bottom.appendChild(state);
-                meeting.appendChild(bottom);
-                queue.appendChild(meeting);
             }
         });
     } else {

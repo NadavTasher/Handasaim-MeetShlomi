@@ -16,7 +16,12 @@ function main()
         if (isRegistered($id)) {
             if (isset($_POST["data"])) {
                 $data = json_decode($_POST["data"]);
-                $result->meeting = createMeeting($id, $data);
+                if (isset($_POST["seed"])) {
+                    $seed = intval($_POST["seed"]);
+                    $result->meeting = createMeeting($id, $seed, $data);
+                } else {
+                    $result->error = "No Seed";
+                }
             } else {
                 $result->user = loadUser($id);
             }
@@ -35,49 +40,66 @@ function main()
     echo json_encode($result);
 }
 
-function createMeeting($id, $data)
+function createMeeting($id, $seed, $data)
 {
     global $db, $settings;
     $result = new stdClass();
-    $date = $data->time->date;
-    $time = $data->time->time;
-    $occupied = isOccupied($time, meetingsForDate($date));
-    $inbounds = $time >= $settings->start && $time <= $settings->end && ($time - $settings->start) % $settings->interval === 0;
-    $create = !$occupied && $inbounds;
-    if ($create) {
-        $meetingId = generateMeetingId();
-        $meeting = new stdClass();
-        $meetingContent = new stdClass();
-        $meetingTime = new stdClass();
-        $meetingTimeDate = new stdClass();
-        $meetingTimeDate->day = $date->day;
-        $meetingTimeDate->month = $date->month;
-        $meetingTimeDate->year = $date->year;
-        $meetingTime->time = $time;
-        $meetingTime->date = $meetingTimeDate;
-        $meetingContent->reason = $data->content->reason;
-        $meeting->time = $meetingTime;
-        $meeting->state = "pending";
-        $meeting->content = $meetingContent;
-        $meeting->id = $meetingId;
-        $meeting->user = $id;
-        // Add To User
-        $users = $db->users;
-        for ($u = 0; $u < sizeof($users); $u++) {
-            if ($users[$u]->id === $id) {
-                array_push($users[$u]->meetings, $meetingId);
+    // Verify Seed
+    if (verifySeed($id, $seed)) {
+        $date = $data->time->date;
+        $time = $data->time->time;
+        $occupied = isOccupied($time, meetingsForDate($date));
+        $inbounds = $time >= $settings->start && $time <= $settings->end && ($time - $settings->start) % $settings->interval === 0;
+        $create = !$occupied && $inbounds;
+        if ($create) {
+            $meetingId = generateMeetingId();
+            $meeting = new stdClass();
+            $meetingContent = new stdClass();
+            $meetingTime = new stdClass();
+            $meetingTimeDate = new stdClass();
+            $meetingTimeDate->day = $date->day;
+            $meetingTimeDate->month = $date->month;
+            $meetingTimeDate->year = $date->year;
+            $meetingTime->time = $time;
+            $meetingTime->date = $meetingTimeDate;
+            $meetingContent->reason = $data->content->reason;
+            $meeting->time = $meetingTime;
+            $meeting->state = "pending";
+            $meeting->content = $meetingContent;
+            $meeting->id = $meetingId;
+            $meeting->user = $id;
+            // Add To User
+            $users = $db->users;
+            for ($u = 0; $u < sizeof($users); $u++) {
+                if ($users[$u]->id === $id) {
+                    array_push($users[$u]->meetings, $meetingId);
+                }
             }
+            $db->users = $users;
+            // Add To Meeting Array
+            $meetings = $db->meetings;
+            array_push($meetings, $meeting);
+            $db->meetings = $meetings;
+            save();
         }
-        $db->users = $users;
-        // Add To Meeting Array
-        $meetings = $db->meetings;
-        array_push($meetings, $meeting);
-        $db->meetings = $meetings;
-        save();
-
+        $result->created = $create;
+    } else {
+        $result->error = "Unable To Verify Seed";
+        $result->created = false;
     }
-    $result->created = $create;
     return $result;
+}
+
+function verifySeed($id, $seed)
+{
+    global $db;
+    $users = $db->users;
+    for ($u = 0; $u < sizeof($users); $u++) {
+        if ($users[$u]->id === $id) {
+            return $users[$u]->seed === $seed;
+        }
+    }
+    return false;
 }
 
 function isOccupied($time, $occupied)
