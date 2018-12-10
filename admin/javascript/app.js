@@ -237,6 +237,7 @@ function addDates() {
             date.setFullYear(currentDate.year);
             date.setMonth(currentDate.month - 1);
             date.setDate(currentDate.day);
+            date.setHours(0, 0, 0, 0);
             if (date >= today) {
                 dates.push(date);
             }
@@ -345,24 +346,12 @@ function getMonthName(month) {
 }
 
 function bubblesort(dates) {
-    function bubble(dates) {
-        let newDates = dates;
-        if (dates.length > 1) {
-            for (let d = 1; d < newDates.length; d++) {
-                if (newDates[d] < newDates[d - 1]) {
-                    let temp = newDates[d];
-                    newDates[d] = newDates[d - 1];
-                    newDates[d - 1] = temp;
-                }
-            }
-        }
-        return newDates;
-    }
-
-    let newDates = dates;
-    while ((newDates = bubble(newDates)) !== newDates) {
-    }
-    return newDates;
+    dates.sort((d1,d2)=>{
+        if(d1>d2)return 1;
+        if(d1<d2)return -1;
+        return 0;
+    });
+    return dates;
 }
 
 function login() {
