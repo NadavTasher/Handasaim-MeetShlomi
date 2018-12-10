@@ -1,4 +1,1 @@
-{
-  "users": [],
-  "meetings": []
-}
+{"users":[{"id":4209,"seed":67876195,"name":"Testu","phone":"0000000000","type":"student","status":"standard","meetings":[13276]}],"meetings":[{"time":{"time":510,"date":{"day":10,"month":12,"year":2018}},"state":"approved","content":{"reason":"ssfs"},"id":13276,"user":4209}]}

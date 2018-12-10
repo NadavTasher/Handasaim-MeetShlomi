@@ -260,7 +260,6 @@ function dayChanged() {
     clear(queue);
     loadMeetings(JSON.parse(day.value), (json) => {
         let meetings = json.results;
-        echo(meetings);
         for (let m = 0; m < meetings.length; m++) {
             let currentMeeting = meetings[m];
             let meeting = document.createElement("div");

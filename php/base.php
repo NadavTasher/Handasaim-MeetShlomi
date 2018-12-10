@@ -280,7 +280,7 @@ function generateUserId()
     return $id;
 }
 
-function byState($state)
+function byState($state = "approved")
 {
     global $db;
     $result = array();
@@ -341,11 +341,10 @@ function closeDate($date)
 
 function loadOccupiedDates()
 {
-    global $db;
     $result = array();
-    $meetings = $db->meetings;
-    for ($m = 0; $m < sizeof($meetings); $m++) {
-        $checkAgainst = $meetings[$m]->time->date;
+    $bystate = byState();
+    for ($m = 0; $m < sizeof($bystate); $m++) {
+        $checkAgainst = $bystate[$m]->time->date;
         $alreadyInserted = false;
         for ($i = 0; $i < sizeof($result) && !$alreadyInserted; $i++) {
             if ($checkAgainst->day === $result[$i]->day &&
