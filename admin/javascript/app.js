@@ -346,12 +346,26 @@ function getMonthName(month) {
 }
 
 function bubblesort(dates) {
-    dates.sort((d1,d2)=>{
-        if(d1>d2)return 1;
-        if(d1<d2)return -1;
-        return 0;
-    });
-    return dates;
+    function sort(d){
+        let tempDates=d;
+        if(tempDates.length>1) {
+            for (let index = 1; index < tempDates.length; index++) {
+                let previous=tempDates[index-1];
+                let current=tempDates[index];
+                if(previous>current){
+                    tempDates[index]=previous;
+                    tempDates[index-1]=current;
+                }
+            }
+        }
+        return tempDates;
+    }
+
+    let n=dates;
+    while(n.toString()!==sort(n).toString()){
+        n=sort(n);
+    }
+    return n;
 }
 
 function login() {
