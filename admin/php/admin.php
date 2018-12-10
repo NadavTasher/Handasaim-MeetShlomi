@@ -6,7 +6,7 @@ $msprefs = json_decode(file_get_contents('../../files/settings.json'));
 $dbFile = '../../files/database.json';
 $db = json_decode(file_get_contents($dbFile));
 // Main
-main();
+//main();
 // Functions
 function main()
 {
@@ -44,6 +44,11 @@ function main()
                                     $id = intval($_POST["id"]);
                                     $result->result = changeState($id, $state);
                                 }
+                            }
+                        }else if($set === "close"){
+                            if(isset($_POST["close"])){
+                                $date=json_decode($_POST["close"]);
+                                $result->closed=closeDate($date);
                             }
                         }
                     }
@@ -87,6 +92,14 @@ function byDate($date)
     return $result;
 }
 
+function closeDate($date){
+    global $db,$msprefs;
+    $start=$msprefs->start;
+    $end=$msprefs->end;
+    $interval=$msprefs->interval;
+
+}
+
 function getDates()
 {
     global $db;
@@ -103,7 +116,7 @@ function getDates()
             }
         }
         if (!$alreadyInserted) {
-            array_push($result, $meetings[$m]->time->date);
+            array_push($result, $checkAgainst);
         }
     }
     return $result;

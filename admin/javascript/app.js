@@ -71,8 +71,148 @@ function pending() {
     });
 }
 
-function closed(){
+function closed() {
+    hideAll();
+    hideHome();
+    show("home");
+    show("closed");
+    loadClosableMonths();
+    closeMonthChanged();
+}
 
+function loadClosableMonths() {
+    let months = get("close-month");
+    clear(months);
+
+    function getMonthName(month) {
+        switch (month) {
+            case 0:
+                return "Jan";
+            case 1:
+                return "Feb";
+            case 2:
+                return "Mar";
+            case 3:
+                return "Apr";
+            case 4:
+                return "May";
+            case 5:
+                return "Jun";
+            case 6:
+                return "Jul";
+            case 7:
+                return "Aug";
+            case 8:
+                return "Sep";
+            case 9:
+                return "Oct";
+            case 10:
+                return "Nov";
+            case 11:
+                return "Dec";
+            default:
+                return "???";
+        }
+    }
+
+    function addMonth(month) {
+        let year = getYear(month);
+        let date = new Date();
+        date.setFullYear(year);
+        date.setMonth(month);
+        date.setDate(1);
+        let today = new Date(Date.now());
+        if (today < date || date.getMonth() === today.getMonth()) {
+            let option = document.createElement("option");
+            option.value = month;
+            option.innerHTML = getMonthName(month);
+            months.appendChild(option);
+        }
+    }
+
+    for (let i = 8; i < 12; i++) {
+        addMonth(i);
+    }
+    for (let i = 0; i < 6; i++) {
+        addMonth(i);
+    }
+}
+
+function closeMonthChanged() {
+    let days = get("close-day");
+    clear(days);
+
+    let month = parseInt(get("close-month").value, 10);
+
+    function getDayName(day) {
+        switch (day) {
+            case 0:
+                return "Sun";
+            case 1:
+                return "Mon";
+            case 2:
+                return "Tue";
+            case 3:
+                return "Wed";
+            case 4:
+                return "Thu";
+            case 5:
+                return "Fri";
+            case 6:
+                return "Sat";
+            default:
+                return "???";
+        }
+    }
+
+    function addDay(month, day) {
+        let currentDate = new Date();
+        currentDate.setFullYear(getYear(month));
+        currentDate.setMonth(month);
+        currentDate.setDate(day);
+        if (currentDate.getDay() < 5 && currentDate.getMonth() === month && new Date(Date.now()) <= currentDate) {
+            let dayName = getDayName(currentDate.getDay());
+            let newDay = document.createElement("option");
+            newDay.value = day;
+            newDay.innerHTML = dayName + " " + day;
+            days.appendChild(newDay);
+        }
+    }
+
+
+    for (let d = 1; d < 32; d++) {
+        addDay(month, d);
+    }
+}
+
+function closeDate() {
+    let date = {
+        day: parseInt(get("close-day").value, 10),
+        month: parseInt(get("close-month").value, 10) + 1,
+        year: getYear(parseInt(get("close-month").value, 10))
+    };
+    let body = new FormData;
+    body.append("key", getCookie("Admin"));
+    body.append("action", "set");
+    body.append("set", "close");
+    body.append("close", JSON.stringify(date));
+    fetch("../php/base.php", {
+        method: "POST",
+        cache: "no-store",
+        headers: {
+            'Cache-Control': 'no-cache'
+        },
+        body: body
+    }).then(response => {
+        response.text().then((response) => {
+            let result = JSON.parse(response);
+            if (result.closed !== undefined) {
+                if (result.closed) {
+                    alert("Closed Day");
+                }
+            }
+        });
+    });
 }
 
 function calendar() {
@@ -90,7 +230,7 @@ function addDates() {
         let day = get("day");
         clear(day);
         let dates = [];
-        let jsonDates = json.dates;
+        let jsonDates = json.results;
         for (let d = 0; d < jsonDates.length; d++) {
             let currentDate = jsonDates[d];
             let date = new Date();
@@ -119,6 +259,7 @@ function dayChanged() {
     clear(queue);
     loadMeetings(JSON.parse(day.value), (json) => {
         let meetings = json.results;
+        echo(meetings);
         for (let m = 0; m < meetings.length; m++) {
             let currentMeeting = meetings[m];
             let meeting = document.createElement("div");
@@ -138,13 +279,15 @@ function dayChanged() {
             meeting.appendChild(typestatusphone);
             meeting.appendChild(datetime);
             queue.appendChild(meeting);
-            loadUserInfo(currentMeeting.user, (user) => {
-                username.innerHTML = user.user.name;
-                let phone = document.createElement("a");
-                phone.href = "tel:" + user.user.phone;
-                phone.innerHTML = user.user.phone;
-                typestatusphone.innerHTML = (user.user.type.substring(0, 1).toUpperCase() + user.user.type.substring(1).toLowerCase()) + (user.user.status === "vip" ? " VIP" : "") + ", " + phone.outerHTML;
-            });
+            if (currentMeeting.user !== 0) {
+                loadUserInfo(currentMeeting.user, (user) => {
+                    username.innerHTML = user.user.name;
+                    let phone = document.createElement("a");
+                    phone.href = "tel:" + user.user.phone;
+                    phone.innerHTML = user.user.phone;
+                    typestatusphone.innerHTML = (user.user.type.substring(0, 1).toUpperCase() + user.user.type.substring(1).toLowerCase()) + (user.user.status === "vip" ? " VIP" : "") + ", " + phone.outerHTML;
+                });
+            }
         }
     });
 }
@@ -234,7 +377,7 @@ function changeState(id, state, callback) {
     body.append("set", "state");
     body.append("state", state);
     body.append("id", id);
-    fetch("php/admin.php", {
+    fetch("../php/base.php", {
         method: "POST",
         cache: "no-store",
         headers: {
@@ -265,7 +408,7 @@ function submitLogin() {
 function loadLogin(password, callback) {
     let body = new FormData;
     body.append("key", password);
-    fetch("php/admin.php", {
+    fetch("../php/base.php", {
         method: "POST",
         cache: "no-store",
         headers: {
@@ -301,7 +444,7 @@ function loadPending(callback) {
     body.append("key", getCookie("Admin"));
     body.append("action", "get");
     body.append("get", "pending");
-    fetch("php/admin.php", {
+    fetch("../php/base.php", {
         method: "POST",
         cache: "no-store",
         headers: {
@@ -320,7 +463,7 @@ function loadDates(callback) {
     body.append("key", getCookie("Admin"));
     body.append("action", "get");
     body.append("get", "dates");
-    fetch("php/admin.php", {
+    fetch("../php/base.php", {
         method: "POST",
         cache: "no-store",
         headers: {
@@ -340,7 +483,7 @@ function loadMeetings(date, callback) {
     body.append("action", "get");
     body.append("get", "date");
     body.append("date", JSON.stringify(date));
-    fetch("php/admin.php", {
+    fetch("../php/base.php", {
         method: "POST",
         cache: "no-store",
         headers: {
@@ -360,6 +503,7 @@ function hideAll() {
 }
 
 function hideHome() {
+    hide("closed");
     hide("pending");
     hide("calendar");
     hide("menu");

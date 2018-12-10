@@ -1,5 +1,3 @@
-const year = 2018;
-
 function hideAll() {
     hide("home");
     hide("new");
@@ -99,24 +97,6 @@ function loadOpenTimes(date, callback) {
     }).then(response => {
         response.text().then((response) => {
             callback(JSON.parse(response).times);
-        });
-    });
-}
-
-function loadClosedDays(month, callback) {
-    let date = {month: month, year: getYear(month)};
-    let body = new FormData;
-    body.append("closed", JSON.stringify(date));
-    fetch("php/base.php", {
-        method: "POST",
-        cache: "no-store",
-        headers: {
-            'Cache-Control': 'no-cache'
-        },
-        body: body
-    }).then(response => {
-        response.text().then((response) => {
-            callback(JSON.parse(response));
         });
     });
 }
@@ -250,21 +230,9 @@ function loadDays(month) {
         }
     }
 
-    loadClosedDays(month, (json) => {
-        let closed = json.closed;
-        for (let d = 1; d < 32; d++) {
-            let currentClosed = false;
-            for (let c = 0; c < closed.length; c++) {
-                let compareAgainst = closed[c];
-                if (compareAgainst.day === d) {
-                    currentClosed = true;
-                }
-            }
-            if (!currentClosed) {
-                addDay(month, d);
-            }
-        }
-    });
+    for (let d = 1; d < 32; d++) {
+        addDay(month, d);
+    }
 }
 
 function loadMonths() {
@@ -332,11 +300,6 @@ function getDate() {
         year: getYear(parseInt(get("new-month").value, 10))
     };
 }
-
-function getYear(month) {
-    return (month < 8) ? year + 1 : year;
-}
-
 
 
 

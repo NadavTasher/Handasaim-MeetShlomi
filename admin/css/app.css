@@ -89,6 +89,10 @@ button {
     color: #FFF;
 }
 
+#close-date{
+    flex-direction: row;
+}
+
 #pending, #queue {
     overflow-y: scroll;
     justify-content: start;

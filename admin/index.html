@@ -15,6 +15,7 @@ https://github.com/NadavTasher/MeetShlomi/
     <link rel="icon" href="images/icon.png"/>
     <link rel="stylesheet" href="css/app.css"/>
     <script type="text/javascript" src="javascript/app.js"></script>
+    <script type="text/javascript" src="../javascript/global.js"></script>
     <script type="text/javascript" src="javascript/customutils.js"></script>
     <script type="text/javascript" src="javascript/utils.js"></script>
     <title>MS Admin</title>
@@ -32,6 +33,16 @@ https://github.com/NadavTasher/MeetShlomi/
             <button onclick="closed()">Closed Days</button>
             <button onclick="pending()">Pending Meetings</button>
             <button onclick="calendar()">Meeting Calendar</button>
+        </div>
+        <div id="closed">
+            <p>Close Days</p>
+            <div id="close-date">
+                <select id="close-day">
+                </select>
+                <select id="close-month" onchange="closeMonthChanged()">
+                </select>
+            </div>
+            <button onclick="closeDate()">Close Day</button>
         </div>
         <div id="pending">
         </div>

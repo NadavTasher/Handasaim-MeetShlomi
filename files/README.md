@@ -2,7 +2,6 @@
 ```
 {
   "users": [],
-  "meetings": [],
-  "closed":[]
+  "meetings": []
 }
 ```

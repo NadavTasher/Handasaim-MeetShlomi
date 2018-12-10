@@ -2,6 +2,7 @@
 // Init Vars
 $result = new stdClass();
 $settings = json_decode(file_get_contents('../files/settings.json'));
+$admin = json_decode(file_get_contents('../admin/files/settings.json'));
 $dbFile = '../files/database.json';
 $db = json_decode(file_get_contents($dbFile));
 // Main
@@ -10,87 +11,130 @@ main();
 function main()
 {
     global $result;
-    if (isset($_POST["id"])) {
-        // User Actions
-        $id = intval($_POST["id"], 10);
-        if (isRegistered($id)) {
-            if (isset($_POST["data"])) {
-                $data = json_decode($_POST["data"]);
-                if (isset($_POST["seed"])) {
-                    $seed = intval($_POST["seed"]);
-                    $result->meeting = createMeeting($id, $seed, $data);
+    if (!isset($_POST["key"])) {
+        if (isset($_POST["id"])) {
+            // User Actions
+            $id = intval($_POST["id"], 10);
+            if (isRegistered($id)) {
+                if (isset($_POST["data"])) {
+                    $data = json_decode($_POST["data"]);
+                    if (isset($_POST["seed"])) {
+                        $seed = intval($_POST["seed"]);
+                        if (verifySeed($id, $seed)) {
+                            $result->meeting = createMeeting($id, $data);
+                        } else {
+                            $result->meeting->created = false;
+                        }
+                    } else {
+                        $result->error = "No Seed";
+                    }
                 } else {
-                    $result->error = "No Seed";
+                    $result->user = loadUser($id);
                 }
             } else {
-                $result->user = loadUser($id);
+                if (isset($_POST["data"])) {
+                    $data = json_decode($_POST["data"]);
+                    $result->user = createUser($data);
+                }
             }
+        } else if (isset($_POST["date"])) {
+            $date = json_decode($_POST["date"]);
+            $result->times = loadTimes($date);
         } else {
-            if (isset($_POST["data"])) {
-                $data = json_decode($_POST["data"]);
-                $result->user = createUser($data);
+            $result->error = "Unknown Action";
+        }
+    } else {
+        // Admin mode
+        $key = $_POST["key"];
+        $auth = checkKey($key);
+        $result->auth = $auth;
+        if ($auth) {
+            if (isset($_POST["action"])) {
+                $action = $_POST["action"];
+                if ($action === "get") {
+                    if (isset($_POST["get"])) {
+                        $get = $_POST["get"];
+                        $result->results = array();
+                        if ($get === "pending" || $get === "approved" || $get === "denied") {
+                            $result->results = byState($get);
+                        } else if ($get === "date") {
+                            if (isset($_POST["date"])) {
+                                $date = json_decode($_POST["date"]);
+                                $result->results = byDate($date);
+                            }
+                        } else if ($get === "dates") {
+                            $result->results = loadOccupiedDates();
+                        }
+                    }
+                } else if ($action === "set") {
+                    if (isset($_POST["set"])) {
+                        $set = $_POST["set"];
+                        if ($set === "state") {
+                            if (isset($_POST["state"])) {
+                                $state = $_POST["state"];
+                                if (isset($_POST["id"])) {
+                                    $id = intval($_POST["id"]);
+                                    $result->result = changeMeetingState($id, $state);
+                                }
+                            }
+                        } else if ($set === "close") {
+                            if (isset($_POST["close"])) {
+                                $date = json_decode($_POST["close"]);
+                                $result->closed = closeDate($date);
+                            }
+                        }
+                    }
+                } else {
+                    $result->error = "Unknown Action";
+                }
             }
         }
-    } else if (isset($_POST["date"])) {
-        $date = json_decode($_POST["date"]);
-        $result->times = loadTimes($date);
-    } else if (isset($_POST["closed"])) {
-        $date = json_decode($_POST["closed"]);
-        $result->closed = loadClosed($date);
-    } else {
-        $result->error = "Unknown Action";
     }
     echo json_encode($result);
 }
 
-function createMeeting($id, $seed, $data)
+function createMeeting($id, $data)
 {
     global $db, $settings;
     $result = new stdClass();
-    // Verify Seed
-    if (verifySeed($id, $seed)) {
-        $date = $data->time->date;
-        $time = $data->time->time;
-        $occupied = isOccupied($time, meetingsForDate($date));
-        $closed = isClosed($date);
-        $inbounds = $time >= $settings->start && $time <= $settings->end && ($time - $settings->start) % $settings->interval === 0;
-        $create = !$occupied && $inbounds && !$closed;
-        if ($create) {
-            $meetingId = generateMeetingId();
-            $meeting = new stdClass();
-            $meetingContent = new stdClass();
-            $meetingTime = new stdClass();
-            $meetingTimeDate = new stdClass();
-            $meetingTimeDate->day = $date->day;
-            $meetingTimeDate->month = $date->month;
-            $meetingTimeDate->year = $date->year;
-            $meetingTime->time = $time;
-            $meetingTime->date = $meetingTimeDate;
-            $meetingContent->reason = $data->content->reason;
-            $meeting->time = $meetingTime;
-            $meeting->state = "pending";
-            $meeting->content = $meetingContent;
-            $meeting->id = $meetingId;
-            $meeting->user = $id;
-            // Add To User
-            $users = $db->users;
-            for ($u = 0; $u < sizeof($users); $u++) {
-                if ($users[$u]->id === $id) {
-                    array_push($users[$u]->meetings, $meetingId);
-                }
+    $date = $data->time->date;
+    $time = $data->time->time;
+    $occupied = isOccupied($time, byDate($date, null));
+    $inbounds = $time >= $settings->start && $time <= $settings->end && ($time - $settings->start) % $settings->interval === 0;
+    $create = !$occupied && $inbounds;
+    if ($create) {
+        $meetingId = generateMeetingId();
+        $meeting = new stdClass();
+        $meetingContent = new stdClass();
+        $meetingTime = new stdClass();
+        $meetingTimeDate = new stdClass();
+        $meetingTimeDate->day = $date->day;
+        $meetingTimeDate->month = $date->month;
+        $meetingTimeDate->year = $date->year;
+        $meetingTime->time = $time;
+        $meetingTime->date = $meetingTimeDate;
+        $meetingContent->reason = $data->content->reason;
+        $meeting->time = $meetingTime;
+        $meeting->state = "pending";
+        $meeting->content = $meetingContent;
+        $meeting->id = $meetingId;
+        $meeting->user = $id;
+        // Add To User
+        $users = $db->users;
+        for ($u = 0; $u < sizeof($users); $u++) {
+            if ($users[$u]->id === $id) {
+                array_push($users[$u]->meetings, $meetingId);
             }
-            $db->users = $users;
-            // Add To Meeting Array
-            $meetings = $db->meetings;
-            array_push($meetings, $meeting);
-            $db->meetings = $meetings;
-            save();
         }
-        $result->created = $create;
-    } else {
-        $result->error = "Unable To Verify Seed";
-        $result->created = false;
+        $db->users = $users;
+        // Add To Meeting Array
+        $meetings = $db->meetings;
+        array_push($meetings, $meeting);
+        $db->meetings = $meetings;
+        save();
+        $result->id = $meetingId;
     }
+    $result->created = $create;
     return $result;
 }
 
@@ -114,28 +158,11 @@ function isOccupied($time, $occupied)
     return false;
 }
 
-function meetingsForDate($date)
-{
-    global $db;
-    $result = array();
-    $meetings = $db->meetings;
-    for ($m = 0; $m < sizeof($meetings); $m++) {
-        $currentMeeting = $meetings[$m];
-        $currentDate = $currentMeeting->time->date;
-        if ($currentDate->day === $date->day &&
-            $currentDate->month === $date->month &&
-            $currentDate->year === $date->year) {
-            array_push($result, $currentMeeting);
-        }
-    }
-    return $result;
-}
-
 function loadTimes($date)
 {
     global $settings;
     $result = new stdClass();
-    $occupied = meetingsForDate($date);
+    $occupied = byDate($date, null);
     $empty = array();
     for ($s = $settings->start; $s < $settings->end; $s += $settings->interval) {
         if (!isOccupied($s, $occupied)) {
@@ -143,21 +170,6 @@ function loadTimes($date)
         }
     }
     $result->times = $empty;
-    return $result;
-}
-
-function loadClosed($date)
-{
-    global $db;
-    $result = array();
-    $days = $db->closed;
-    for ($i = 0; $i < sizeof($days); $i++) {
-        $compareAgainst = $days[$i];
-        if ($compareAgainst->month === $date->month &&
-            $compareAgainst->year === $date->year) {
-            array_push($result, $compareAgainst);
-        }
-    }
     return $result;
 }
 
@@ -178,7 +190,7 @@ function loadUser($id)
             // Load Full Meetings
             $meetings = array();
             for ($m = 0; $m < sizeof($currentUser->meetings); $m++) {
-                array_push($meetings, loadMeeting($currentUser->meetings[$m]));
+                array_push($meetings, byId($currentUser->meetings[$m]));
             }
             $user->meetings = $meetings;
         }
@@ -214,7 +226,7 @@ function createUser($data)
     return $result;
 }
 
-function loadMeeting($id)
+function byId($id)
 {
     global $db;
     $meetings = $db->meetings;
@@ -268,19 +280,108 @@ function generateUserId()
     return $id;
 }
 
-function isClosed($date)
+function byState($state)
 {
     global $db;
-    $days = $db->closed;
-    for ($i = 0; $i < sizeof($days); $i++) {
-        $compareAgainst = $days[$i];
-        if ($compareAgainst->day === $date->day &&
-            $compareAgainst->month === $date->month &&
-            $compareAgainst->year === $date->year) {
-            return true;
+    $result = array();
+    $meetings = $db->meetings;
+    for ($m = 0; $m < sizeof($meetings); $m++) {
+        if ($meetings[$m]->state === $state) array_push($result, $meetings[$m]);
+    }
+    return $result;
+}
+
+function byDate($date, $state = "approved")
+{
+    global $db;
+    $result = array();
+    $meetings = $db->meetings;
+    for ($m = 0; $m < sizeof($meetings); $m++) {
+        $checkAgainst = $meetings[$m]->time->date;
+        if ($checkAgainst->day === $date->day &&
+            $checkAgainst->month === $date->month &&
+            $checkAgainst->year === $date->year) {
+            if ($state !== null) {
+                if ($meetings[$m]->state === $state) {
+                    array_push($result, $meetings[$m]);
+                }
+            } else {
+                array_push($result, $meetings[$m]);
+            }
         }
     }
-    return false;
+    return $result;
+}
+
+function closeDate($date)
+{
+    global $settings;
+    $start = $settings->start;
+    $end = $settings->end;
+    $interval = $settings->interval;
+    $occupied = byDate($date, null);
+    for ($m = $start; $m < $end; $m += $interval) {
+        if (!isOccupied($m, $occupied)) {
+            $data = new stdClass();
+            $dataContent = new stdClass();
+            $dataContent->reason = "Day Closed";
+            $data->content = $dataContent;
+            $dataTime = new stdClass();
+            $dataTime->time = $m;
+            $dataTime->date = $date;
+            $data->time = $dataTime;
+            $result = createMeeting(0, $data);
+            if (isset($result->id)) {
+                changeMeetingState($result->id, "approved");
+            }
+        }
+    }
+    return true;
+}
+
+function loadOccupiedDates()
+{
+    global $db;
+    $result = array();
+    $meetings = $db->meetings;
+    for ($m = 0; $m < sizeof($meetings); $m++) {
+        $checkAgainst = $meetings[$m]->time->date;
+        $alreadyInserted = false;
+        for ($i = 0; $i < sizeof($result) && !$alreadyInserted; $i++) {
+            if ($checkAgainst->day === $result[$i]->day &&
+                $checkAgainst->month === $result[$i]->month &&
+                $checkAgainst->year === $result[$i]->year) {
+                $alreadyInserted = true;
+            }
+        }
+        if (!$alreadyInserted) {
+            array_push($result, $checkAgainst);
+        }
+    }
+    return $result;
+}
+
+function changeMeetingState($id, $state)
+{
+    global $db;
+    $result = new stdClass();
+    $result->changed = false;
+    $meetings = $db->meetings;
+    for ($m = 0; $m < sizeof($meetings); $m++) {
+        if ($meetings[$m]->id === $id) {
+            $meetings[$m]->state = $state;
+            $result->changed = true;
+        }
+    }
+    $db->meetings = $meetings;
+    save();
+    return $result;
+}
+
+function checkKey($key)
+{
+    global $admin;
+    return $key === $admin->password;
 }
 
 function save()
